@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTR Navigator · Hong Kong</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="panel">
+
+  <div class="panel-header">
+    <div class="logo">MTR</div>
+    <div class="header-text">
+      <h1>MTR Navigator</h1>
+      <p>Hong Kong Island Line</p>
+    </div>
+  </div>
+
+  <div class="panel-body">
+
+    <!-- STATUS -->
+    <div id="status-badge">
+      <span class="dot"></span>
+      <span id="status-text">Chọn đoạn bị cấm → Nhấn Xác nhận</span>
+    </div>
+
+    <!-- BLOCKED SECTION -->
+    <div style="padding:14px 16px 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span class="section-label">Đoạn bị cấm</span>
+        <span id="blocked-count-badge" class="blocked-count-badge" style="display:none;"></span>
+      </div>
+      <div id="blocked-panel">
+        <div class="blocked-empty" id="blocked-empty-msg">Chưa có đoạn nào bị cấm</div>
+        <div id="blocked-list"></div>
+      </div>
+    </div>
+
+    <!-- ROUTE RESULT -->
+    <div id="route-section" style="display:none;padding:14px 16px 0;">
+      <div class="divider" style="margin-bottom:14px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span class="section-label">Tuyến đường</span>
+      </div>
+      <div id="route-body"></div>
+    </div>
+
+    <div style="height:6px;"></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="ctrl-row">
+    <button class="btn primary" onclick="finishBlock()">
+      Xác nhận
+      <span id="blocked-count-chip"></span>
+    </button>
+    <button class="btn" onclick="zoomIn()">＋</button>
+    <button class="btn" onclick="zoomOut()">－</button>
+    <button class="btn reset" onclick="resetMap()">↺</button>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
