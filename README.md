@@ -9,6 +9,7 @@ Ngoài phần tìm đường, ứng dụng còn có lớp trải nghiệm du l�
 - [Tổng Quan](#tổng-quan)
 - [Tính Năng Chính](#tính-năng-chính)
 - [Phạm Vi Mô Phỏng](#phạm-vi-mô-phỏng)
+- [Danh Sách Ga](#danh-sách-ga)
 - [Công Nghệ Sử Dụng](#công-nghệ-sử-dụng)
 - [Cấu Trúc Thư Mục](#cấu-trúc-thư-mục)
 - [Cách Chạy Dự Án](#cách-chạy-dự-án)
@@ -74,6 +75,167 @@ Mạng có cả tuyến trung tâm đông ga, tuyến sân bay, tuyến nhánh n
 
 - Central - Hong Kong;
 - Tsim Sha Tsui - East Tsim Sha Tsui.
+
+## Danh Sách Ga
+
+Tổng cộng dự án đang sử dụng **97 ga**. ID trong bảng dưới đây là chỉ số nội bộ theo thứ tự mảng `stations` trong `app.js`; cột "Các ga kề" cũng dùng các ID này để biểu diễn quan hệ kề trong đồ thị. Quan hệ kề bao gồm cả đoạn metro và liên kết trung chuyển đi bộ.
+
+### Nhóm ID 0-24
+
+<table style="width:100%; border-collapse:collapse; margin:12px 0 24px; font-size:14px;">
+  <thead>
+    <tr style="background:#b91c1c; color:#ffffff;">
+      <th style="border:1px solid #7f1d1d; padding:8px;">ID</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Tên ga</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Các ga kề</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Tọa độ (lat, lng)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">0</td><td style="border:1px solid #fecaca; padding:7px;">Central</td><td style="border:1px solid #fecaca; padding:7px;">1, 25, 40</td><td style="border:1px solid #fecaca; padding:7px;">22.282171, 114.157825</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">1</td><td style="border:1px solid #fecaca; padding:7px;">Admiralty</td><td style="border:1px solid #fecaca; padding:7px;">0, 2, 26, 72, 80</td><td style="border:1px solid #fecaca; padding:7px;">22.2788, 114.1646</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">2</td><td style="border:1px solid #fecaca; padding:7px;">Tsim Sha Tsui</td><td style="border:1px solid #fecaca; padding:7px;">1, 3, 66</td><td style="border:1px solid #fecaca; padding:7px;">22.2973, 114.1722</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">3</td><td style="border:1px solid #fecaca; padding:7px;">Jordan</td><td style="border:1px solid #fecaca; padding:7px;">2, 4</td><td style="border:1px solid #fecaca; padding:7px;">22.3049, 114.1718</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">4</td><td style="border:1px solid #fecaca; padding:7px;">Yau Ma Tei</td><td style="border:1px solid #fecaca; padding:7px;">3, 5, 70</td><td style="border:1px solid #fecaca; padding:7px;">22.3128, 114.170694</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">5</td><td style="border:1px solid #fecaca; padding:7px;">Mong Kok</td><td style="border:1px solid #fecaca; padding:7px;">4, 15</td><td style="border:1px solid #fecaca; padding:7px;">22.31925, 114.169361</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">6</td><td style="border:1px solid #fecaca; padding:7px;">Shek Kip Mei</td><td style="border:1px solid #fecaca; padding:7px;">7, 15</td><td style="border:1px solid #fecaca; padding:7px;">22.332025, 114.168889</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">7</td><td style="border:1px solid #fecaca; padding:7px;">Kowloon Tong</td><td style="border:1px solid #fecaca; padding:7px;">6, 8, 55, 56</td><td style="border:1px solid #fecaca; padding:7px;">22.336786, 114.177542</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">8</td><td style="border:1px solid #fecaca; padding:7px;">Lok Fu</td><td style="border:1px solid #fecaca; padding:7px;">7, 9</td><td style="border:1px solid #fecaca; padding:7px;">22.338, 114.1871</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">9</td><td style="border:1px solid #fecaca; padding:7px;">Wong Tai Sin</td><td style="border:1px solid #fecaca; padding:7px;">8, 10</td><td style="border:1px solid #fecaca; padding:7px;">22.3417, 114.1939</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">10</td><td style="border:1px solid #fecaca; padding:7px;">Diamond Hill</td><td style="border:1px solid #fecaca; padding:7px;">9, 11, 76, 77</td><td style="border:1px solid #fecaca; padding:7px;">22.3401, 114.2016</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">11</td><td style="border:1px solid #fecaca; padding:7px;">Choi Hung</td><td style="border:1px solid #fecaca; padding:7px;">10, 12</td><td style="border:1px solid #fecaca; padding:7px;">22.3348, 114.2089</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">12</td><td style="border:1px solid #fecaca; padding:7px;">Kowloon Bay</td><td style="border:1px solid #fecaca; padding:7px;">11, 13</td><td style="border:1px solid #fecaca; padding:7px;">22.3235, 114.2141</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">13</td><td style="border:1px solid #fecaca; padding:7px;">Ngau Tau Kok</td><td style="border:1px solid #fecaca; padding:7px;">12, 14</td><td style="border:1px solid #fecaca; padding:7px;">22.315457, 114.21901</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">14</td><td style="border:1px solid #fecaca; padding:7px;">Kwun Tong</td><td style="border:1px solid #fecaca; padding:7px;">13, 37</td><td style="border:1px solid #fecaca; padding:7px;">22.3121, 114.2265</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">15</td><td style="border:1px solid #fecaca; padding:7px;">Prince Edward</td><td style="border:1px solid #fecaca; padding:7px;">5, 6, 16</td><td style="border:1px solid #fecaca; padding:7px;">22.3245, 114.1683</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">16</td><td style="border:1px solid #fecaca; padding:7px;">Sham Shui Po</td><td style="border:1px solid #fecaca; padding:7px;">15, 17</td><td style="border:1px solid #fecaca; padding:7px;">22.3307, 114.1623</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">17</td><td style="border:1px solid #fecaca; padding:7px;">Cheung Sha Wan</td><td style="border:1px solid #fecaca; padding:7px;">16, 18</td><td style="border:1px solid #fecaca; padding:7px;">22.3354, 114.1563</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">18</td><td style="border:1px solid #fecaca; padding:7px;">Lai Chi Kok</td><td style="border:1px solid #fecaca; padding:7px;">17, 19</td><td style="border:1px solid #fecaca; padding:7px;">22.3373, 114.1482</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">19</td><td style="border:1px solid #fecaca; padding:7px;">Mei Foo</td><td style="border:1px solid #fecaca; padding:7px;">18, 20, 49, 90</td><td style="border:1px solid #fecaca; padding:7px;">22.338, 114.139028</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">20</td><td style="border:1px solid #fecaca; padding:7px;">Lai King</td><td style="border:1px solid #fecaca; padding:7px;">19, 21, 42, 49</td><td style="border:1px solid #fecaca; padding:7px;">22.3484, 114.1261</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">21</td><td style="border:1px solid #fecaca; padding:7px;">Kwai Fong</td><td style="border:1px solid #fecaca; padding:7px;">20, 22</td><td style="border:1px solid #fecaca; padding:7px;">22.3569, 114.1279</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">22</td><td style="border:1px solid #fecaca; padding:7px;">Kwai Hing</td><td style="border:1px solid #fecaca; padding:7px;">21, 23</td><td style="border:1px solid #fecaca; padding:7px;">22.3632, 114.1312</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">23</td><td style="border:1px solid #fecaca; padding:7px;">Tai Wo Hau</td><td style="border:1px solid #fecaca; padding:7px;">22, 24</td><td style="border:1px solid #fecaca; padding:7px;">22.3708, 114.125</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">24</td><td style="border:1px solid #fecaca; padding:7px;">Tsuen Wan</td><td style="border:1px solid #fecaca; padding:7px;">23</td><td style="border:1px solid #fecaca; padding:7px;">22.3736, 114.1178</td></tr>
+  </tbody>
+</table>
+
+### Nhóm ID 25-49
+
+<table style="width:100%; border-collapse:collapse; margin:12px 0 24px; font-size:14px;">
+  <thead>
+    <tr style="background:#b91c1c; color:#ffffff;">
+      <th style="border:1px solid #7f1d1d; padding:8px;">ID</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Tên ga</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Các ga kề</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Tọa độ (lat, lng)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">25</td><td style="border:1px solid #fecaca; padding:7px;">Sheung Wan</td><td style="border:1px solid #fecaca; padding:7px;">0, 67</td><td style="border:1px solid #fecaca; padding:7px;">22.2862, 114.1518</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">26</td><td style="border:1px solid #fecaca; padding:7px;">Wan Chai</td><td style="border:1px solid #fecaca; padding:7px;">1, 27</td><td style="border:1px solid #fecaca; padding:7px;">22.2773, 114.1728</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">27</td><td style="border:1px solid #fecaca; padding:7px;">Causeway Bay</td><td style="border:1px solid #fecaca; padding:7px;">26, 28</td><td style="border:1px solid #fecaca; padding:7px;">22.2802, 114.1835</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">28</td><td style="border:1px solid #fecaca; padding:7px;">Tin Hau</td><td style="border:1px solid #fecaca; padding:7px;">27, 29</td><td style="border:1px solid #fecaca; padding:7px;">22.2827, 114.1917</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">29</td><td style="border:1px solid #fecaca; padding:7px;">Fortress Hill</td><td style="border:1px solid #fecaca; padding:7px;">28, 30</td><td style="border:1px solid #fecaca; padding:7px;">22.2881, 114.1936</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">30</td><td style="border:1px solid #fecaca; padding:7px;">North Point</td><td style="border:1px solid #fecaca; padding:7px;">29, 31</td><td style="border:1px solid #fecaca; padding:7px;">22.2909, 114.2007</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">31</td><td style="border:1px solid #fecaca; padding:7px;">Quarry Bay</td><td style="border:1px solid #fecaca; padding:7px;">30, 32, 44</td><td style="border:1px solid #fecaca; padding:7px;">22.2878, 114.2096</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">32</td><td style="border:1px solid #fecaca; padding:7px;">Tai Koo</td><td style="border:1px solid #fecaca; padding:7px;">31, 33</td><td style="border:1px solid #fecaca; padding:7px;">22.2846, 114.2161</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">33</td><td style="border:1px solid #fecaca; padding:7px;">Sai Wan Ho</td><td style="border:1px solid #fecaca; padding:7px;">32, 34</td><td style="border:1px solid #fecaca; padding:7px;">22.2816, 114.2224</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">34</td><td style="border:1px solid #fecaca; padding:7px;">Shau Kei Wan</td><td style="border:1px solid #fecaca; padding:7px;">33, 35</td><td style="border:1px solid #fecaca; padding:7px;">22.2789, 114.2289</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">35</td><td style="border:1px solid #fecaca; padding:7px;">Heng Fa Chuen</td><td style="border:1px solid #fecaca; padding:7px;">34, 36</td><td style="border:1px solid #fecaca; padding:7px;">22.2769, 114.2398</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">36</td><td style="border:1px solid #fecaca; padding:7px;">Chai Wan</td><td style="border:1px solid #fecaca; padding:7px;">35</td><td style="border:1px solid #fecaca; padding:7px;">22.2644, 114.2368</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">37</td><td style="border:1px solid #fecaca; padding:7px;">Lam Tin</td><td style="border:1px solid #fecaca; padding:7px;">14, 44</td><td style="border:1px solid #fecaca; padding:7px;">22.3064, 114.2331</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">38</td><td style="border:1px solid #fecaca; padding:7px;">Olympic</td><td style="border:1px solid #fecaca; padding:7px;">41, 49</td><td style="border:1px solid #fecaca; padding:7px;">22.3178, 114.1602</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">39</td><td style="border:1px solid #fecaca; padding:7px;">Tung Chung</td><td style="border:1px solid #fecaca; padding:7px;">50</td><td style="border:1px solid #fecaca; padding:7px;">22.2893, 113.9416</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">40</td><td style="border:1px solid #fecaca; padding:7px;">Hong Kong</td><td style="border:1px solid #fecaca; padding:7px;">0, 41</td><td style="border:1px solid #fecaca; padding:7px;">22.2848, 114.158</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">41</td><td style="border:1px solid #fecaca; padding:7px;">Kowloon</td><td style="border:1px solid #fecaca; padding:7px;">38, 40, 42</td><td style="border:1px solid #fecaca; padding:7px;">22.3049, 114.1615</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">42</td><td style="border:1px solid #fecaca; padding:7px;">Tsing Yi</td><td style="border:1px solid #fecaca; padding:7px;">20, 41, 43, 50</td><td style="border:1px solid #fecaca; padding:7px;">22.3584, 114.107</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">43</td><td style="border:1px solid #fecaca; padding:7px;">Airport</td><td style="border:1px solid #fecaca; padding:7px;">42, 52</td><td style="border:1px solid #fecaca; padding:7px;">22.316, 113.9366</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">44</td><td style="border:1px solid #fecaca; padding:7px;">Yau Tong</td><td style="border:1px solid #fecaca; padding:7px;">31, 37, 45</td><td style="border:1px solid #fecaca; padding:7px;">22.2979, 114.2371</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">45</td><td style="border:1px solid #fecaca; padding:7px;">Tiu Keng Leng</td><td style="border:1px solid #fecaca; padding:7px;">44, 46</td><td style="border:1px solid #fecaca; padding:7px;">22.3041, 114.2524</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">46</td><td style="border:1px solid #fecaca; padding:7px;">Tseung Kwan O</td><td style="border:1px solid #fecaca; padding:7px;">45, 47, 53</td><td style="border:1px solid #fecaca; padding:7px;">22.3074, 114.26</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">47</td><td style="border:1px solid #fecaca; padding:7px;">Hang Hau</td><td style="border:1px solid #fecaca; padding:7px;">46, 48</td><td style="border:1px solid #fecaca; padding:7px;">22.3156, 114.2644</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">48</td><td style="border:1px solid #fecaca; padding:7px;">Po Lam</td><td style="border:1px solid #fecaca; padding:7px;">47</td><td style="border:1px solid #fecaca; padding:7px;">22.3224, 114.258</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">49</td><td style="border:1px solid #fecaca; padding:7px;">Nam Cheong</td><td style="border:1px solid #fecaca; padding:7px;">19, 20, 38, 89</td><td style="border:1px solid #fecaca; padding:7px;">22.326497, 114.153089</td></tr>
+  </tbody>
+</table>
+
+### Nhóm ID 50-74
+
+<table style="width:100%; border-collapse:collapse; margin:12px 0 24px; font-size:14px;">
+  <thead>
+    <tr style="background:#b91c1c; color:#ffffff;">
+      <th style="border:1px solid #7f1d1d; padding:8px;">ID</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Tên ga</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Các ga kề</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Tọa độ (lat, lng)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">50</td><td style="border:1px solid #fecaca; padding:7px;">Sunny Bay</td><td style="border:1px solid #fecaca; padding:7px;">39, 42, 51</td><td style="border:1px solid #fecaca; padding:7px;">22.3318, 114.0288</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">51</td><td style="border:1px solid #fecaca; padding:7px;">Disneyland Resort</td><td style="border:1px solid #fecaca; padding:7px;">50</td><td style="border:1px solid #fecaca; padding:7px;">22.3155, 114.0451</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">52</td><td style="border:1px solid #fecaca; padding:7px;">AsiaWorld-Expo</td><td style="border:1px solid #fecaca; padding:7px;">43</td><td style="border:1px solid #fecaca; padding:7px;">22.3218, 113.9412</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">53</td><td style="border:1px solid #fecaca; padding:7px;">LOHAS Park</td><td style="border:1px solid #fecaca; padding:7px;">46</td><td style="border:1px solid #fecaca; padding:7px;">22.2957, 114.2689</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">54</td><td style="border:1px solid #fecaca; padding:7px;">Hung Hom</td><td style="border:1px solid #fecaca; padding:7px;">55, 66, 70, 80</td><td style="border:1px solid #fecaca; padding:7px;">22.3029, 114.1816</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">55</td><td style="border:1px solid #fecaca; padding:7px;">Mong Kok East</td><td style="border:1px solid #fecaca; padding:7px;">7, 54</td><td style="border:1px solid #fecaca; padding:7px;">22.3222, 114.1728</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">56</td><td style="border:1px solid #fecaca; padding:7px;">Tai Wai</td><td style="border:1px solid #fecaca; padding:7px;">7, 57, 76, 81</td><td style="border:1px solid #fecaca; padding:7px;">22.3731, 114.1786</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">57</td><td style="border:1px solid #fecaca; padding:7px;">Sha Tin</td><td style="border:1px solid #fecaca; padding:7px;">56, 58</td><td style="border:1px solid #fecaca; padding:7px;">22.3825, 114.1875</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">58</td><td style="border:1px solid #fecaca; padding:7px;">Fo Tan</td><td style="border:1px solid #fecaca; padding:7px;">57, 59</td><td style="border:1px solid #fecaca; padding:7px;">22.3953, 114.1982</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">59</td><td style="border:1px solid #fecaca; padding:7px;">University</td><td style="border:1px solid #fecaca; padding:7px;">58, 60</td><td style="border:1px solid #fecaca; padding:7px;">22.4134, 114.2102</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">60</td><td style="border:1px solid #fecaca; padding:7px;">Tai Po Market</td><td style="border:1px solid #fecaca; padding:7px;">59, 61</td><td style="border:1px solid #fecaca; padding:7px;">22.4446, 114.1706</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">61</td><td style="border:1px solid #fecaca; padding:7px;">Tai Wo</td><td style="border:1px solid #fecaca; padding:7px;">60, 62</td><td style="border:1px solid #fecaca; padding:7px;">22.4511, 114.1611</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">62</td><td style="border:1px solid #fecaca; padding:7px;">Fanling</td><td style="border:1px solid #fecaca; padding:7px;">61, 63</td><td style="border:1px solid #fecaca; padding:7px;">22.4921, 114.1387</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">63</td><td style="border:1px solid #fecaca; padding:7px;">Sheung Shui</td><td style="border:1px solid #fecaca; padding:7px;">62, 64, 65</td><td style="border:1px solid #fecaca; padding:7px;">22.5012, 114.128</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">64</td><td style="border:1px solid #fecaca; padding:7px;">Lo Wu</td><td style="border:1px solid #fecaca; padding:7px;">63</td><td style="border:1px solid #fecaca; padding:7px;">22.5283, 114.1134</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">65</td><td style="border:1px solid #fecaca; padding:7px;">Lok Ma Chau</td><td style="border:1px solid #fecaca; padding:7px;">63</td><td style="border:1px solid #fecaca; padding:7px;">22.5144, 114.0657</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">66</td><td style="border:1px solid #fecaca; padding:7px;">East Tsim Sha Tsui</td><td style="border:1px solid #fecaca; padding:7px;">2, 54, 89</td><td style="border:1px solid #fecaca; padding:7px;">22.2953, 114.1742</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">67</td><td style="border:1px solid #fecaca; padding:7px;">Sai Ying Pun</td><td style="border:1px solid #fecaca; padding:7px;">25, 68</td><td style="border:1px solid #fecaca; padding:7px;">22.2856, 114.143</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">68</td><td style="border:1px solid #fecaca; padding:7px;">HKU</td><td style="border:1px solid #fecaca; padding:7px;">67, 69</td><td style="border:1px solid #fecaca; padding:7px;">22.2841, 114.136</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">69</td><td style="border:1px solid #fecaca; padding:7px;">Kennedy Town</td><td style="border:1px solid #fecaca; padding:7px;">68</td><td style="border:1px solid #fecaca; padding:7px;">22.2812, 114.129</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">70</td><td style="border:1px solid #fecaca; padding:7px;">Ho Man Tin</td><td style="border:1px solid #fecaca; padding:7px;">4, 54, 71, 79</td><td style="border:1px solid #fecaca; padding:7px;">22.3093, 114.183</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">71</td><td style="border:1px solid #fecaca; padding:7px;">Whampoa</td><td style="border:1px solid #fecaca; padding:7px;">70</td><td style="border:1px solid #fecaca; padding:7px;">22.305, 114.19</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">72</td><td style="border:1px solid #fecaca; padding:7px;">Ocean Park</td><td style="border:1px solid #fecaca; padding:7px;">1, 73</td><td style="border:1px solid #fecaca; padding:7px;">22.2486, 114.174</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">73</td><td style="border:1px solid #fecaca; padding:7px;">Wong Chuk Hang</td><td style="border:1px solid #fecaca; padding:7px;">72, 74</td><td style="border:1px solid #fecaca; padding:7px;">22.248, 114.168</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">74</td><td style="border:1px solid #fecaca; padding:7px;">Lei Tung</td><td style="border:1px solid #fecaca; padding:7px;">73, 75</td><td style="border:1px solid #fecaca; padding:7px;">22.2421, 114.1562</td></tr>
+  </tbody>
+</table>
+
+### Nhóm ID 75-96
+
+<table style="width:100%; border-collapse:collapse; margin:12px 0 24px; font-size:14px;">
+  <thead>
+    <tr style="background:#b91c1c; color:#ffffff;">
+      <th style="border:1px solid #7f1d1d; padding:8px;">ID</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Tên ga</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Các ga kề</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Tọa độ (lat, lng)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">75</td><td style="border:1px solid #fecaca; padding:7px;">South Horizons</td><td style="border:1px solid #fecaca; padding:7px;">74</td><td style="border:1px solid #fecaca; padding:7px;">22.2425, 114.1491</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">76</td><td style="border:1px solid #fecaca; padding:7px;">Hin Keng</td><td style="border:1px solid #fecaca; padding:7px;">10, 56</td><td style="border:1px solid #fecaca; padding:7px;">22.364, 114.171</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">77</td><td style="border:1px solid #fecaca; padding:7px;">Kai Tak</td><td style="border:1px solid #fecaca; padding:7px;">10, 78</td><td style="border:1px solid #fecaca; padding:7px;">22.3305, 114.199</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">78</td><td style="border:1px solid #fecaca; padding:7px;">Sung Wong Toi</td><td style="border:1px solid #fecaca; padding:7px;">77, 79</td><td style="border:1px solid #fecaca; padding:7px;">22.3258, 114.191</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">79</td><td style="border:1px solid #fecaca; padding:7px;">To Kwa Wan</td><td style="border:1px solid #fecaca; padding:7px;">70, 78</td><td style="border:1px solid #fecaca; padding:7px;">22.3172, 114.188</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">80</td><td style="border:1px solid #fecaca; padding:7px;">Exhibition Centre</td><td style="border:1px solid #fecaca; padding:7px;">1, 54</td><td style="border:1px solid #fecaca; padding:7px;">22.2818, 114.1754</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">81</td><td style="border:1px solid #fecaca; padding:7px;">Che Kung Temple</td><td style="border:1px solid #fecaca; padding:7px;">56, 82</td><td style="border:1px solid #fecaca; padding:7px;">22.3748, 114.1861</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">82</td><td style="border:1px solid #fecaca; padding:7px;">Sha Tin Wai</td><td style="border:1px solid #fecaca; padding:7px;">81, 83</td><td style="border:1px solid #fecaca; padding:7px;">22.3771, 114.195</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">83</td><td style="border:1px solid #fecaca; padding:7px;">City One</td><td style="border:1px solid #fecaca; padding:7px;">82, 84</td><td style="border:1px solid #fecaca; padding:7px;">22.3828, 114.2035</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">84</td><td style="border:1px solid #fecaca; padding:7px;">Shek Mun</td><td style="border:1px solid #fecaca; padding:7px;">83, 85</td><td style="border:1px solid #fecaca; padding:7px;">22.3877, 114.2083</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">85</td><td style="border:1px solid #fecaca; padding:7px;">Tai Shui Hang</td><td style="border:1px solid #fecaca; padding:7px;">84, 86</td><td style="border:1px solid #fecaca; padding:7px;">22.4088, 114.223</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">86</td><td style="border:1px solid #fecaca; padding:7px;">Heng On</td><td style="border:1px solid #fecaca; padding:7px;">85, 87</td><td style="border:1px solid #fecaca; padding:7px;">22.4174, 114.2258</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">87</td><td style="border:1px solid #fecaca; padding:7px;">Ma On Shan</td><td style="border:1px solid #fecaca; padding:7px;">86, 88</td><td style="border:1px solid #fecaca; padding:7px;">22.4247, 114.2316</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">88</td><td style="border:1px solid #fecaca; padding:7px;">Wu Kai Sha</td><td style="border:1px solid #fecaca; padding:7px;">87</td><td style="border:1px solid #fecaca; padding:7px;">22.4291, 114.2438</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">89</td><td style="border:1px solid #fecaca; padding:7px;">Austin</td><td style="border:1px solid #fecaca; padding:7px;">49, 66</td><td style="border:1px solid #fecaca; padding:7px;">22.303625, 114.166767</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">90</td><td style="border:1px solid #fecaca; padding:7px;">Tsuen Wan West</td><td style="border:1px solid #fecaca; padding:7px;">19, 91</td><td style="border:1px solid #fecaca; padding:7px;">22.3682, 114.1098</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">91</td><td style="border:1px solid #fecaca; padding:7px;">Kam Sheung Road</td><td style="border:1px solid #fecaca; padding:7px;">90, 92</td><td style="border:1px solid #fecaca; padding:7px;">22.434789, 114.0635</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">92</td><td style="border:1px solid #fecaca; padding:7px;">Yuen Long</td><td style="border:1px solid #fecaca; padding:7px;">91, 93</td><td style="border:1px solid #fecaca; padding:7px;">22.4462, 114.0355</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">93</td><td style="border:1px solid #fecaca; padding:7px;">Long Ping</td><td style="border:1px solid #fecaca; padding:7px;">92, 94</td><td style="border:1px solid #fecaca; padding:7px;">22.447594, 114.0256</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">94</td><td style="border:1px solid #fecaca; padding:7px;">Tin Shui Wai</td><td style="border:1px solid #fecaca; padding:7px;">93, 95</td><td style="border:1px solid #fecaca; padding:7px;">22.4481, 114.0048</td></tr>
+    <tr style="background:#fff1f2;"><td style="border:1px solid #fecaca; padding:7px;">95</td><td style="border:1px solid #fecaca; padding:7px;">Siu Hong</td><td style="border:1px solid #fecaca; padding:7px;">94, 96</td><td style="border:1px solid #fecaca; padding:7px;">22.412414, 113.978611</td></tr>
+    <tr><td style="border:1px solid #fecaca; padding:7px;">96</td><td style="border:1px solid #fecaca; padding:7px;">Tuen Mun</td><td style="border:1px solid #fecaca; padding:7px;">95</td><td style="border:1px solid #fecaca; padding:7px;">22.3941, 113.973194</td></tr>
+  </tbody>
+</table>
 
 ## Công Nghệ Sử Dụng
 
@@ -238,6 +400,70 @@ if (!edge.isTransfer && blockedEdges.has(edge.key)) continue;
 ```
 
 Nếu không còn đường hợp lệ, `findPath()` trả về `null` và giao diện hiển thị thông báo không tìm được route.
+
+### Bảng Thông Số Theo Repo
+
+<table style="width:100%; border-collapse:collapse; margin:12px 0 24px; font-size:14px;">
+  <thead>
+    <tr style="background:#b91c1c; color:#ffffff;">
+      <th style="border:1px solid #7f1d1d; padding:8px;">Chỉ số</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Giá trị</th>
+      <th style="border:1px solid #7f1d1d; padding:8px;">Ghi chú</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#fff1f2;">
+      <td style="border:1px solid #fecaca; padding:7px;">Số đỉnh |V|</td>
+      <td style="border:1px solid #fecaca; padding:7px;">97</td>
+      <td style="border:1px solid #fecaca; padding:7px;">Tương ứng 97 ga MTR trong mảng <code>stations</code>.</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #fecaca; padding:7px;">Số cạnh |E|</td>
+      <td style="border:1px solid #fecaca; padding:7px;">106</td>
+      <td style="border:1px solid #fecaca; padding:7px;">Gồm 104 đoạn metro và 2 liên kết trung chuyển đi bộ.</td>
+    </tr>
+    <tr style="background:#fff1f2;">
+      <td style="border:1px solid #fecaca; padding:7px;">Số tuyến</td>
+      <td style="border:1px solid #fecaca; padding:7px;">10</td>
+      <td style="border:1px solid #fecaca; padding:7px;">AEL, DRL, EAL, ISL, KTL, SIL, TCL, TKL, TML, TWL.</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #fecaca; padding:7px;">Số ga trung chuyển</td>
+      <td style="border:1px solid #fecaca; padding:7px;">21</td>
+      <td style="border:1px solid #fecaca; padding:7px;">Các ga có từ 2 tuyến trở lên trong thuộc tính <code>lines</code>.</td>
+    </tr>
+    <tr style="background:#fff1f2;">
+      <td style="border:1px solid #fecaca; padding:7px;">Bậc lớn nhất</td>
+      <td style="border:1px solid #fecaca; padding:7px;">5</td>
+      <td style="border:1px solid #fecaca; padding:7px;">Bậc theo graph thực tế sau khi sinh từ <code>lineSequences</code> và <code>transferLinks</code>.</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #fecaca; padding:7px;">Số trạng thái A*</td>
+      <td style="border:1px solid #fecaca; padding:7px;">121</td>
+      <td style="border:1px solid #fecaca; padding:7px;">Repo tìm trên trạng thái <code>stationId|currentLine</code>, không chỉ trên ga.</td>
+    </tr>
+    <tr style="background:#fff1f2;">
+      <td style="border:1px solid #fecaca; padding:7px;">Độ phức tạp thời gian</td>
+      <td style="border:1px solid #fecaca; padding:7px;">O(S² log S + A)</td>
+      <td style="border:1px solid #fecaca; padding:7px;">S là số trạng thái A*. Code hiện dùng mảng <code>open</code> và <code>sort()</code> mỗi vòng, chưa dùng heap/priority queue.</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #fecaca; padding:7px;">Nếu dùng heap</td>
+      <td style="border:1px solid #fecaca; padding:7px;">O(A log S)</td>
+      <td style="border:1px solid #fecaca; padding:7px;">Đây là phương án tối ưu hơn nếu thay <code>open.sort()</code> bằng priority queue.</td>
+    </tr>
+    <tr style="background:#fff1f2;">
+      <td style="border:1px solid #fecaca; padding:7px;">Độ phức tạp không gian</td>
+      <td style="border:1px solid #fecaca; padding:7px;">O(S + A)</td>
+      <td style="border:1px solid #fecaca; padding:7px;">Dùng cho <code>g</code>, <code>trace</code>, <code>closed</code>, <code>open</code> và graph kề.</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #fecaca; padding:7px;">Worst case</td>
+      <td style="border:1px solid #fecaca; padding:7px;">Mở gần hết S trạng thái</td>
+      <td style="border:1px solid #fecaca; padding:7px;">Không còn là đồ thị tuyến tính 7 ga; khi nhiều đoạn bị cấm, A* có thể phải xét phần lớn graph.</td>
+    </tr>
+  </tbody>
+</table>
 
 ## Gợi Ý Du Lịch
 
