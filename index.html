@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MTR Navigator · Hong Kong</title>
+  <title>MTR Navigator · Hong Kong Network</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,13 +17,151 @@
 
 <div id="map"></div>
 
+<div class="map-frame" aria-hidden="true">
+  <span class="corner top-left"></span>
+  <span class="corner top-right"></span>
+  <span class="corner bottom-left"></span>
+  <span class="corner bottom-right"></span>
+</div>
+
+<div id="line-legend" aria-label="MTR line legend">
+  <div class="legend-title">Live Network</div>
+  <div class="legend-grid">
+    <span><i style="--line:#e2231a"></i>TWL</span>
+    <span><i style="--line:#007dc5"></i>ISL</span>
+    <span><i style="--line:#00a040"></i>KTL</span>
+    <span><i style="--line:#9a3b26"></i>TML</span>
+    <span><i style="--line:#6cc4e8"></i>EAL</span>
+    <span><i style="--line:#f7941d"></i>TCL</span>
+  </div>
+</div>
+
+<button id="tour-guide" type="button" onclick="cycleGuideTip()" aria-label="Anime travel guide">
+  <div class="guide-bubble">
+    <span id="guide-text">Xin chào, mình sẽ gợi ý điểm chơi và món ngon dọc tuyến metro.</span>
+  </div>
+  <div class="guide-stage">
+    <svg class="anime-guide chibi-hood-guide" viewBox="0 0 170 210" role="img" aria-label="Chibi anime travel guide mascot">
+      <defs>
+        <linearGradient id="hoodShade" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#4b3449"/>
+          <stop offset="1" stop-color="#1d1728"/>
+        </linearGradient>
+        <linearGradient id="hairCream" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#fff8f1"/>
+          <stop offset="1" stop-color="#eacfc5"/>
+        </linearGradient>
+      </defs>
+      <g class="guide-shadow">
+        <ellipse cx="83" cy="194" rx="55" ry="11"/>
+      </g>
+      <g class="travel-bag">
+        <path class="bag-body" d="M109 132 C126 121 142 128 146 147 L151 182 C139 191 116 190 103 183 L106 148 C106 141 107 136 109 132 Z"/>
+        <path class="bag-top" d="M114 130 C119 116 138 115 142 131"/>
+        <path class="bag-pocket" d="M120 155 C126 150 139 151 143 158 L141 176 C134 181 123 180 117 175 Z"/>
+        <path class="bag-strap" d="M109 145 C119 152 134 153 148 147"/>
+      </g>
+      <g class="chibi-main">
+        <path class="hood back" d="M31 55 C33 26 58 8 85 10 C119 13 139 42 133 80 C130 108 112 134 84 142 C53 136 29 106 31 55 Z"/>
+        <path class="hood trim" d="M41 60 C45 32 67 18 89 22 C113 27 126 49 124 75 C116 55 98 43 79 42 C61 42 49 49 41 60 Z"/>
+        <path class="hair back" d="M38 59 C43 36 61 23 84 23 C111 23 124 45 124 74 C124 113 104 161 82 184 C57 160 36 112 38 59 Z"/>
+        <g class="guide-head">
+          <circle class="face" cx="82" cy="74" r="42"/>
+          <path class="hair bangs" d="M42 60 C51 38 66 28 89 27 C86 43 76 54 61 62 C72 59 88 49 103 31 C121 42 125 61 121 78 C112 61 99 54 84 51 C77 66 61 75 43 76 C40 70 40 65 42 60 Z"/>
+          <path class="eye-smile left" d="M58 73 C63 66 72 66 76 73"/>
+          <path class="eye-smile right" d="M90 73 C95 66 104 66 108 73"/>
+          <ellipse class="mouth-open" cx="83" cy="89" rx="9" ry="12"/>
+          <path class="tongue" d="M77 95 C82 100 88 100 92 95 C89 102 80 103 77 95 Z"/>
+          <circle class="blush left" cx="51" cy="85" r="10"/>
+          <circle class="blush right" cx="114" cy="85" r="10"/>
+          <path class="hair side left" d="M42 75 C30 103 32 144 50 174 C51 134 56 104 68 77 Z"/>
+          <path class="hair side right" d="M122 76 C136 104 131 146 112 176 C112 132 106 104 94 77 Z"/>
+        </g>
+        <g class="guide-body">
+          <path class="outfit" d="M54 116 C64 126 101 126 112 116 L122 176 C104 187 59 187 42 176 Z"/>
+          <path class="collar" d="M66 116 L82 131 L99 116 C96 143 70 143 66 116 Z"/>
+          <path class="arm left" d="M50 128 C38 137 33 152 36 166 C38 173 49 172 48 164 C47 153 51 145 59 139 Z"/>
+          <g class="wave-arm">
+            <path class="arm right" d="M112 126 C126 119 138 106 140 91 C141 83 131 81 128 88 C125 100 119 108 108 113 Z"/>
+            <circle class="hand" cx="136" cy="89" r="7"/>
+          </g>
+          <circle class="hand" cx="42" cy="166" r="7"/>
+          <path class="leg left" d="M61 174 L76 174 L75 195 L58 195 Z"/>
+          <path class="leg right" d="M90 174 L105 174 L109 195 L92 195 Z"/>
+          <path class="shoe left" d="M55 193 L77 193 C82 197 77 202 64 202 C54 202 49 198 55 193 Z"/>
+          <path class="shoe right" d="M90 193 L113 193 C119 198 112 202 102 202 C91 202 85 198 90 193 Z"/>
+        </g>
+        <g class="guide-accessories">
+          <g class="sparkle s1"><path d="M23 38 L27 47 L36 51 L27 55 L23 64 L19 55 L10 51 L19 47 Z"/></g>
+          <g class="sparkle s2"><path d="M137 35 L140 42 L147 45 L140 48 L137 55 L134 48 L127 45 L134 42 Z"/></g>
+        </g>
+      </g>
+    </svg>
+  </div>
+</button>
+
+<button id="tour-guide-right" class="side-guide" type="button" onclick="cycleGuideTip()" aria-label="Second anime travel guide">
+  <div class="guide-bubble right-bubble">
+    <span id="guide-text-right">Tớ sẽ phụ trách nhắc các điểm nên xuống chơi!</span>
+  </div>
+  <div class="guide-stage">
+    <svg class="anime-guide purple-guide" viewBox="0 0 160 230" role="img" aria-label="Purple hair anime travel guide mascot">
+      <defs>
+        <linearGradient id="purpleCoatShade" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#f8fbff"/>
+          <stop offset="1" stop-color="#dde7ff"/>
+        </linearGradient>
+      </defs>
+      <g class="guide-shadow">
+        <ellipse cx="82" cy="213" rx="46" ry="10"/>
+      </g>
+      <g class="guide-body">
+        <path class="coat" d="M48 111 C50 94 66 84 82 84 C101 84 113 95 116 113 L126 197 C105 207 61 208 38 197 Z"/>
+        <path class="scarf" d="M61 103 C72 114 89 116 103 103 L108 119 C91 132 70 130 55 118 Z"/>
+        <path class="dress" d="M61 126 L103 126 L111 197 C94 202 69 202 52 197 Z"/>
+        <path class="leg left" d="M62 194 L75 194 L74 218 L59 218 Z"/>
+        <path class="leg right" d="M91 194 L104 194 L109 218 L94 218 Z"/>
+        <path class="shoe left" d="M55 217 L76 217 C79 221 75 225 63 225 C54 225 49 222 55 217 Z"/>
+        <path class="shoe right" d="M92 217 L113 217 C119 222 113 225 103 225 C92 225 88 221 92 217 Z"/>
+        <path class="arm left" d="M50 119 C35 127 29 145 32 162 C34 170 46 168 45 160 C43 148 47 139 56 132 Z"/>
+        <g class="wave-arm">
+          <path class="arm right" d="M113 117 C130 105 139 88 137 73 C136 64 125 65 125 74 C126 87 119 97 108 105 Z"/>
+          <circle class="hand" cx="132" cy="70" r="8"/>
+        </g>
+        <circle class="hand" cx="38" cy="162" r="8"/>
+      </g>
+      <g class="guide-head">
+        <path class="hair back" d="M42 57 C45 25 70 9 94 18 C121 28 126 58 116 88 C101 78 65 79 48 91 C39 80 38 68 42 57 Z"/>
+        <circle class="face" cx="80" cy="65" r="39"/>
+        <path class="hair bangs" d="M45 57 C55 33 72 24 94 26 C89 43 76 55 62 62 C72 58 87 49 104 31 C121 45 119 66 114 79 C107 63 95 55 83 51 C74 68 58 76 43 77 C41 70 41 63 45 57 Z"/>
+        <g class="eyes">
+          <ellipse class="eye left" cx="66" cy="68" rx="5.2" ry="7.5"/>
+          <ellipse class="eye right" cx="94" cy="68" rx="5.2" ry="7.5"/>
+        </g>
+        <path class="smile" d="M72 84 C77 89 85 89 90 84"/>
+        <circle class="blush left" cx="56" cy="80" r="5"/>
+        <circle class="blush right" cx="104" cy="80" r="5"/>
+        <path class="hair side left" d="M44 77 C38 102 47 121 59 134 C54 111 58 91 68 75 Z"/>
+        <path class="hair side right" d="M112 78 C122 101 116 124 103 136 C108 111 102 91 92 75 Z"/>
+      </g>
+      <g class="guide-accessories">
+        <path class="cap" d="M54 35 C65 16 97 14 110 35 C95 31 69 31 54 35 Z"/>
+        <rect class="cap-band" x="60" y="30" width="44" height="8" rx="4"/>
+        <path class="pin" d="M82 28 L88 38 L76 38 Z"/>
+        <g class="sparkle s1"><path d="M26 46 L30 55 L39 59 L30 63 L26 72 L22 63 L13 59 L22 55 Z"/></g>
+        <g class="sparkle s2"><path d="M127 38 L130 45 L137 48 L130 51 L127 58 L124 51 L117 48 L124 45 Z"/></g>
+      </g>
+    </svg>
+  </div>
+</button>
+
 <div id="panel">
 
   <div class="panel-header">
     <div class="logo">MTR</div>
     <div class="header-text">
       <h1>MTR Navigator</h1>
-      <p>Hong Kong Island Line</p>
+      <p>Hong Kong MTR Network</p>
     </div>
   </div>
 
@@ -32,7 +170,7 @@
     <!-- STATUS -->
     <div id="status-badge">
       <span class="dot"></span>
-      <span id="status-text">Chọn đoạn bị cấm → Nhấn Xác nhận</span>
+      <span id="status-text">Đang tải mạng metro Hong Kong</span>
     </div>
 
     <!-- BLOCKED SECTION -->
