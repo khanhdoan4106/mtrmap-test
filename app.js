@@ -4,6 +4,7 @@
 // =====================================================================
 const map = L.map('map', { zoomControl: false }).setView([22.2819, 114.1589], 14);
 
+
 // Thêm lớp tile OpenStreetMap làm nền bản đồ
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
@@ -29,6 +30,7 @@ let pathLine    = null; // Polyline thể hiện tuyến đường tìm được
 const blockedEdges = new Set();
 
 
+//Sua code
 //Sua code
 // =====================================================================
 // DỮ LIỆU CÁC GA (ĐỈNH CỦA ĐỒ THỊ)
