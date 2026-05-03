@@ -28,6 +28,8 @@ let pathLine    = null; // Polyline thể hiện tuyến đường tìm được
 // Tập hợp các cạnh (đoạn đường) bị cấm, lưu dạng "u-v" và "v-u"
 const blockedEdges = new Set();
 
+
+//Sua code
 // =====================================================================
 // DỮ LIỆU CÁC GA (ĐỈNH CỦA ĐỒ THỊ)
 // Mỗi ga có id, tên hiển thị và tọa độ địa lý
