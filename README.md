@@ -29,10 +29,10 @@ Trong thực tế, hệ thống giao thông đô thị có thể bị gián đo�
 
 Dự án này mô phỏng bài toán đó trên mạng MTR Hong Kong. Về mặt trí tuệ nhân tạo, đây là một bài toán tìm kiếm đường đi trên đồ thị có ràng buộc động:
 
-- mỗi ga là một đỉnh;
-- mỗi đoạn metro nối hai ga là một cạnh;
-- mỗi cạnh có trọng số thời gian di chuyển riêng;
-- người dùng có thể chặn cạnh trong thời gian thực;
+- Mỗi ga là một đỉnh;
+- Mỗi đoạn metro nối hai ga là một cạnh;
+- Mỗi cạnh có trọng số thời gian di chuyển riêng;
+- Người dùng có thể chặn cạnh trong thời gian thực;
 - A* tìm route hợp lệ từ ga gần điểm bắt đầu nhất đến ga gần điểm kết thúc nhất.
 
 ## Tính Năng Chính
@@ -469,11 +469,11 @@ Nếu không còn đường hợp lệ, `findPath()` trả về `null` và giao 
 
 Sau khi route được tính, `renderStopSuggestions(result)` sẽ:
 
-1. lấy danh sách ga nằm trên route;
-2. lọc các ga có dữ liệu trong `stopSuggestions`;
-3. ưu tiên gợi ý đầu tiên của mỗi ga;
-4. giới hạn số card để panel không quá dài;
-5. render các card "Gợi ý dừng chân".
+1. Lấy danh sách ga nằm trên route;
+2. Lọc các ga có dữ liệu trong `stopSuggestions`;
+3. Ưu tiên gợi ý đầu tiên của mỗi ga;
+4. Giới hạn số card để panel không quá dài;
+5. Render các card "Gợi ý dừng chân".
 
 Các gợi ý hiện có bao gồm những khu vực như Central, Sheung Wan, Admiralty, Wan Chai, Causeway Bay, Tsim Sha Tsui, Jordan, Mong Kok, Diamond Hill, Ocean Park, Disneyland Resort, Tung Chung, Sha Tin, Yuen Long và Tuen Mun.
 
@@ -481,14 +481,14 @@ Các gợi ý hiện có bao gồm những khu vực như Central, Sheung Wan, A
 
 Giao diện hiện gồm:
 
-- bản đồ Leaflet toàn màn hình;
-- panel điều khiển bên phải;
-- legend màu tuyến ở góc trái trên;
-- khung trang trí bản đồ bằng dải màu MTR;
-- mascot tóc trắng ở góc trái dưới;
-- mascot tóc tím ở phía phải dưới, cạnh panel;
-- bong bóng thoại cho cả hai mascot;
-- route flow có màu tuyến, thời gian từng đoạn và card gợi ý dừng chân.
+- Bản đồ Leaflet toàn màn hình;
+- Panel điều khiển bên phải;
+- Legend màu tuyến ở góc trái trên;
+- Khung trang trí bản đồ bằng dải màu MTR;
+- Mascot tóc trắng ở góc trái dưới;
+- Mascot tóc tím ở phía phải dưới, cạnh panel;
+- Bong bóng thoại cho cả hai mascot;
+- Route flow có màu tuyến, thời gian từng đoạn và card gợi ý dừng chân.
 
 Mascot được dựng bằng SVG và CSS animation, không phụ thuộc ảnh ngoài. Các chuyển động gồm floating, vẫy tay, chớp mắt, nhún nhẹ, tóc chuyển động và sparkle. Khi người dùng click vào một mascot, cả hai bong bóng thoại đổi nội dung theo tip hiện tại.
 
