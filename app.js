@@ -26,7 +26,7 @@ const lineProfiles = {
   TKL: { name: 'Tseung Kwan O Line',   color: '#7d499d', speedKmh: 45, dwellMins: 0.35, minEdgeMins: 1.4 },
   TML: { name: 'Tuen Ma Line',         color: '#9a3b26', speedKmh: 55, dwellMins: 0.35, minEdgeMins: 1.5 },
   TWL: { name: 'Tsuen Wan Line',       color: '#e2231a', speedKmh: 40, dwellMins: 0.35, minEdgeMins: 1.3 },
-  XFER: { name: 'Interchange Walk',    color: '#9aa4b2', speedKmh: 5,  dwellMins: 0,    minEdgeMins: 0 }
+  XFER: { name: 'Đi bộ chuyển tuyến',  color: '#9aa4b2', speedKmh: 5,  dwellMins: 0,    minEdgeMins: 0 }
 };
 
 const transferPenaltyMins = {
@@ -37,6 +37,68 @@ const transferPenaltyMins = {
 
 const DEFAULT_TRANSFER_MINS = 3;
 const FASTEST_SPEED_KMH = 75;
+
+const routeModes = {
+  balanced: {
+    label: 'Cân bằng',
+    shortLabel: 'Cân bằng',
+    tag: 'Du lịch thông minh',
+    description: 'Giữ thời gian hợp lý và ưu tiên các ga có điểm ăn chơi.',
+    timeWeight: 1,
+    transferWeight: 1.35,
+    attractionBonus: 0.45,
+    maxStationBonus: 1.2,
+    heuristicWeight: 0.35
+  },
+  fastest: {
+    label: 'Nhanh nhất',
+    shortLabel: 'Nhanh nhất',
+    tag: 'Ưu tiên thời gian',
+    description: 'Đi nhanh nhất theo thời gian MTR ước tính.',
+    timeWeight: 1,
+    transferWeight: 1,
+    attractionBonus: 0,
+    maxStationBonus: 0,
+    heuristicWeight: 1
+  },
+  lowTransfers: {
+    label: 'Ít đổi tuyến',
+    shortLabel: 'Ít đổi tuyến',
+    tag: 'Dễ đi',
+    description: 'Phạt nặng việc đổi tuyến để tìm hành trình dễ theo dõi hơn.',
+    timeWeight: 1.02,
+    transferWeight: 4.2,
+    attractionBonus: 0.1,
+    maxStationBonus: 0.3,
+    heuristicWeight: 0.2
+  },
+  food: {
+    label: 'Ăn uống',
+    shortLabel: 'Ăn uống',
+    tag: 'Món ngon',
+    description: 'Ưu tiên các tuyến đi qua ga có món ngon, chợ đêm hoặc khu ẩm thực địa phương.',
+    timeWeight: 1.08,
+    transferWeight: 1.35,
+    attractionBonus: 1.1,
+    maxStationBonus: 2.1,
+    heuristicWeight: 0.12,
+    preferredKinds: ['Food', 'Night market', 'Local market']
+  },
+  checkin: {
+    label: 'Check-in',
+    shortLabel: 'Check-in',
+    tag: 'Điểm đẹp',
+    description: 'Ưu tiên các ga gần view đẹp, địa danh, văn hóa và điểm chụp ảnh.',
+    timeWeight: 1.08,
+    transferWeight: 1.35,
+    attractionBonus: 1,
+    maxStationBonus: 2,
+    heuristicWeight: 0.12,
+    preferredKinds: ['View', 'Photo', 'Culture', 'Heritage', 'Landmark', 'Nature', 'Theme park', 'Art', 'Shopping']
+  }
+};
+
+const routeModeOrder = ['balanced', 'fastest', 'lowTransfers', 'food', 'checkin'];
 
 const stations = [
   { id: 'CEN', name: 'Central', lat: 22.282171, lng: 114.157825, lines: ['ISL', 'TWL'] },
@@ -536,12 +598,42 @@ let markerStart = null;
 let markerEnd = null;
 let pathLine = null;
 let routeEdgeLines = [];
+let activeRouteMode = 'balanced';
+
+const guideMoods = {
+  happy: { icon: ':D', label: 'Vui' },
+  idea: { icon: '!!', label: 'Ý kiến' },
+  pout: { icon: '-_-', label: 'Hờn dỗi' },
+  angry: { icon: '>:(', label: 'Căng' },
+  proud: { icon: 'B)', label: 'Tự tin' },
+  excited: { icon: '**', label: 'Hào hứng' }
+};
 
 const defaultGuideTips = [
-  'Hai hướng dẫn viên sẽ dẫn bạn qua mạng MTR Hong Kong. Click vào đoạn metro để giả lập sự cố nhé.',
-  'Sau khi chọn điểm đi và điểm đến, mình sẽ gợi ý thêm điểm chơi hoặc món ngon dọc đường.',
-  'Các ga trung chuyển sáng hơn trên bản đồ; đó thường là nơi đổi tuyến nhanh nhất.',
-  'Nếu route đi qua Tsim Sha Tsui, Central hoặc Mong Kok, rất đáng xuống tàu chơi một lúc.'
+  {
+    left: 'Tớ phụ trách tìm mấy điểm ăn chơi vui dọc tuyến. Bấm vào đoạn metro nếu muốn giả lập sự cố nhé.',
+    right: 'Còn tớ sẽ canh thời gian và số lần đổi tuyến. Đừng để bạn ấy kéo đi vòng vì ham chơi quá.',
+    leftMood: 'happy',
+    rightMood: 'idea'
+  },
+  {
+    left: 'Chọn xong điểm đi và điểm đến là tớ sẽ tranh luận với bạn tóc tím xem chỗ nào đáng xuống tàu.',
+    right: 'Tranh luận thì được, nhưng tớ vẫn ưu tiên tuyến gọn và dễ đi hơn.',
+    leftMood: 'excited',
+    rightMood: 'proud'
+  },
+  {
+    left: 'Nếu đi qua Mong Kok, Tsim Sha Tsui hoặc Central thì tớ sẽ đòi dừng chơi một lát.',
+    right: 'Đừng ham chơi quá. Nếu đổi tuyến nhiều, tớ sẽ nhắc ngay.',
+    leftMood: 'happy',
+    rightMood: 'pout'
+  },
+  {
+    left: 'Bấm vào hai đứa tớ để đổi lời thoại và xem biểu cảm mới.',
+    right: 'Mỗi tuyến sẽ có nét mặt khác nhau: vui, hờn dỗi, căng hoặc hào hứng.',
+    leftMood: 'idea',
+    rightMood: 'happy'
+  }
 ];
 let currentGuideTips = [...defaultGuideTips];
 let guideTipIndex = 0;
@@ -579,6 +671,27 @@ function canonicalEdgeKey(u, v) {
 
 function lineLabel(line) {
   return lineProfiles[line]?.name || line;
+}
+
+function kindLabel(kind) {
+  return {
+    View: 'Ngắm cảnh',
+    Culture: 'Văn hóa',
+    Food: 'Ăn uống',
+    Heritage: 'Di sản',
+    Nature: 'Thiên nhiên',
+    Shopping: 'Mua sắm',
+    Photo: 'Chụp ảnh',
+    Landmark: 'Địa danh',
+    'Night market': 'Chợ đêm',
+    'Local life': 'Đời sống địa phương',
+    'Local culture': 'Văn hóa địa phương',
+    'Local market': 'Chợ địa phương',
+    Art: 'Nghệ thuật',
+    'Theme park': 'Công viên chủ đề',
+    Transit: 'Trung chuyển',
+    'Day trip': 'Đi trong ngày'
+  }[kind] || kind;
 }
 
 function lineColor(line) {
@@ -682,16 +795,79 @@ function transferPenalty(stationId, fromLine, toLine) {
   return transferPenaltyMins[stationId] || DEFAULT_TRANSFER_MINS;
 }
 
-function findPath(src, dst) {
+function getRouteMode(modeKey) {
+  return routeModes[modeKey] || routeModes.balanced;
+}
+
+function stationTourBonus(stationId, modeKey) {
+  const profile = getRouteMode(modeKey);
+  const items = stopSuggestions[stationId] || [];
+  if (!items.length || !profile.attractionBonus) return 0;
+
+  if (!profile.preferredKinds) {
+    return Math.min(profile.maxStationBonus, items.length * profile.attractionBonus);
+  }
+
+  const preferred = new Set(profile.preferredKinds);
+  const matching = items.filter(item => preferred.has(item.kind)).length;
+  const secondary = items.length - matching;
+  const bonus = matching * profile.attractionBonus + secondary * 0.15;
+  return Math.min(profile.maxStationBonus, bonus);
+}
+
+function routeTourScore(route, modeKey) {
+  const profile = getRouteMode(modeKey);
+  const preferred = profile.preferredKinds ? new Set(profile.preferredKinds) : null;
+  return route.reduce((total, stationId) => {
+    const items = stopSuggestions[stationId] || [];
+    return total + items.reduce((sum, item) => {
+      if (!preferred) return sum + 1;
+      return sum + (preferred.has(item.kind) ? 2 : 0.35);
+    }, 0);
+  }, 0);
+}
+
+function countTransfers(legs) {
+  return legs.filter(leg => leg.isTransfer || leg.transferTime > 0).length;
+}
+
+function decorateRouteResult(result, modeKey, score) {
+  const profile = getRouteMode(modeKey);
+  const suggestions = getRouteSuggestions(result.route);
+  return {
+    ...result,
+    modeKey,
+    modeLabel: profile.label,
+    modeShortLabel: profile.shortLabel,
+    modeTag: profile.tag,
+    modeDescription: profile.description,
+    transfers: countTransfers(result.legs),
+    suggestionCount: suggestions.length,
+    tourScore: roundedMinutes(routeTourScore(result.route, modeKey)),
+    score: roundedMinutes(score ?? result.cost)
+  };
+}
+
+function findPath(src, dst, options = {}) {
+  const modeKey = options.modeKey || 'fastest';
+  const profile = getRouteMode(modeKey);
+
   if (src === dst) {
-    return { route: [src], legs: [], cost: 0 };
+    return decorateRouteResult({ route: [src], legs: [], cost: 0 }, modeKey, 0);
   }
 
   const startKey = stateKey(src, null);
-  const g = new Map([[startKey, 0]]);
+  const score = new Map([[startKey, 0]]);
+  const actual = new Map([[startKey, 0]]);
   const trace = new Map();
   const closed = new Set();
-  const open = [{ station: src, line: null, key: startKey, f: heuristic(src, dst) }];
+  const open = [{
+    station: src,
+    line: null,
+    key: startKey,
+    visited: new Set([src]),
+    f: heuristic(src, dst) * profile.heuristicWeight
+  }];
 
   while (open.length) {
     open.sort((a, b) => a.f - b.f);
@@ -701,40 +877,60 @@ function findPath(src, dst) {
     closed.add(current.key);
 
     if (current.station === dst) {
-      return reconstructPath(src, current.key, trace, g.get(current.key));
+      return reconstructPath(
+        src,
+        current.key,
+        trace,
+        actual.get(current.key),
+        score.get(current.key),
+        modeKey
+      );
     }
 
     for (const edge of adj.get(current.station) || []) {
       if (!edge.isTransfer && blockedEdges.has(edge.key)) continue;
 
       const nextStation = edge.u === current.station ? edge.v : edge.u;
+      if (current.visited.has(nextStation) && nextStation !== dst) continue;
+
       const candidateLines = edge.lines;
 
       for (const edgeLine of candidateLines) {
         const nextLine = edge.isTransfer ? null : edgeLine;
         const extraTransfer = edge.isTransfer ? 0 : transferPenalty(current.station, current.line, edgeLine);
-        const edgeCost = edge.timeByLine[edgeLine] + extraTransfer;
-        const tentative = g.get(current.key) + edgeCost;
+        const edgeTime = edge.timeByLine[edgeLine];
+        const actualEdgeCost = edgeTime + extraTransfer;
+        const bonus = stationTourBonus(nextStation, modeKey);
+        const weightedEdgeCost = Math.max(
+          0.25,
+          edgeTime * profile.timeWeight + extraTransfer * profile.transferWeight - bonus
+        );
+        const tentativeScore = score.get(current.key) + weightedEdgeCost;
+        const tentativeActual = actual.get(current.key) + actualEdgeCost;
         const nextKey = stateKey(nextStation, nextLine);
 
-        if (tentative >= (g.get(nextKey) ?? Infinity)) continue;
+        if (tentativeScore >= (score.get(nextKey) ?? Infinity)) continue;
 
-        g.set(nextKey, tentative);
+        score.set(nextKey, tentativeScore);
+        actual.set(nextKey, tentativeActual);
         trace.set(nextKey, {
           prevKey: current.key,
           from: current.station,
           to: nextStation,
           line: edgeLine,
-          edgeTime: edge.timeByLine[edgeLine],
+          edgeTime,
           transferTime: extraTransfer,
-          isTransfer: edge.isTransfer
+          isTransfer: edge.isTransfer,
+          scoreTime: roundedMinutes(weightedEdgeCost),
+          tourBonus: roundedMinutes(bonus)
         });
 
         open.push({
           station: nextStation,
           line: nextLine,
           key: nextKey,
-          f: tentative + heuristic(nextStation, dst)
+          visited: new Set([...current.visited, nextStation]),
+          f: tentativeScore + heuristic(nextStation, dst) * profile.heuristicWeight
         });
       }
     }
@@ -743,7 +939,7 @@ function findPath(src, dst) {
   return null;
 }
 
-function reconstructPath(src, finalKey, trace, cost) {
+function reconstructPath(src, finalKey, trace, cost, score, modeKey) {
   const legs = [];
   let key = finalKey;
 
@@ -756,9 +952,15 @@ function reconstructPath(src, finalKey, trace, cost) {
 
   legs.reverse();
   return {
-    route: [src, ...legs.map(leg => leg.to)],
-    legs,
-    cost: roundedMinutes(cost)
+    ...decorateRouteResult(
+      {
+        route: [src, ...legs.map(leg => leg.to)],
+        legs,
+        cost: roundedMinutes(cost)
+      },
+      modeKey,
+      score
+    )
   };
 }
 
@@ -847,28 +1049,95 @@ function setStatus(text, variant = '') {
   badge.innerHTML = `<span class="dot"></span><span>${text}</span>`;
 }
 
-function setGuideTip(text) {
+function normalizeGuideTip(tip) {
+  if (typeof tip === 'object' && tip !== null) {
+    return {
+      left: tip.left || '',
+      right: tip.right || companionGuideLine(tip.left || ''),
+      leftMood: guideMoods[tip.leftMood] ? tip.leftMood : 'happy',
+      rightMood: guideMoods[tip.rightMood] ? tip.rightMood : 'idea'
+    };
+  }
+
+  return {
+    left: tip,
+    right: companionGuideLine(tip),
+    leftMood: inferGuideMood(tip, 'left'),
+    rightMood: inferGuideMood(tip, 'right')
+  };
+}
+
+function inferGuideMood(text, side) {
+  const value = String(text || '').toLowerCase();
+  if (value.includes('khong') || value.includes('không') || value.includes('chia') || value.includes('cam') || value.includes('cấm')) {
+    return side === 'left' ? 'angry' : 'pout';
+  }
+  if (value.includes('food') || value.includes('an') || value.includes('ăn') || value.includes('mong kok')) {
+    return side === 'left' ? 'excited' : 'pout';
+  }
+  if (value.includes('check') || value.includes('view') || value.includes('photo')) {
+    return side === 'left' ? 'pout' : 'excited';
+  }
+  if (value.includes('phut') || value.includes('phút') || value.includes('transfer')) {
+    return side === 'left' ? 'idea' : 'proud';
+  }
+  return side === 'left' ? 'happy' : 'idea';
+}
+
+function applyMood(targetId, badgeId, mood) {
+  const target = document.getElementById(targetId);
+  const badge = document.getElementById(badgeId);
+  const safeMood = guideMoods[mood] ? mood : 'happy';
+  const moodClass = `mood-${safeMood}`;
+
+  if (target?.classList) {
+    Object.keys(guideMoods).forEach(key => target.classList.remove?.(`mood-${key}`));
+    target.classList.add?.(moodClass);
+  }
+
+  if (badge?.classList) {
+    Object.keys(guideMoods).forEach(key => badge.classList.remove?.(`mood-${key}`));
+    badge.classList.add?.(moodClass);
+  }
+
+  const config = guideMoods[safeMood];
+  const icon = badge?.querySelector?.('.mood-icon');
+  const label = badge?.querySelector?.('.mood-label');
+  if (icon) icon.textContent = config.icon;
+  if (label) label.textContent = config.label;
+}
+
+function setGuideDuelMood(leftMood, rightMood) {
+  applyMood('tour-guide', 'guide-mood-left', leftMood);
+  applyMood('tour-guide-right', 'guide-mood-right', rightMood);
+}
+
+function setGuideTip(tip) {
   const guideText = document.getElementById('guide-text');
   const guideTextRight = document.getElementById('guide-text-right');
   if (!guideText) return;
-  guideText.textContent = text;
-  if (guideTextRight) guideTextRight.textContent = companionGuideLine(text);
+
+  const normalized = normalizeGuideTip(tip);
+  guideText.textContent = normalized.left;
+  if (guideTextRight) guideTextRight.textContent = normalized.right;
+  setGuideDuelMood(normalized.leftMood, normalized.rightMood);
 }
 
 function companionGuideLine(text) {
-  if (text.includes('Central') || text.includes('Tsim Sha Tsui') || text.includes('Mong Kok')) {
-    return 'Điểm này đáng xuống tàu lắm, nhớ chừa thời gian ăn chơi nha.';
+  const value = String(text || '');
+  if (value.includes('Central') || value.includes('Tsim Sha Tsui') || value.includes('Mong Kok')) {
+    return 'Điểm này đáng xuống tàu, nhưng tớ sẽ tính xem có làm lệch lịch không.';
   }
-  if (text.includes('không') || text.includes('chia cắt') || text.includes('bị cấm')) {
-    return 'Nếu tuyến bị nghẽn, thử bỏ cấm vài đoạn hoặc chọn ga gần hơn.';
+  if (value.includes('khong') || value.includes('không') || value.includes('chia') || value.includes('cam') || value.includes('cấm')) {
+    return 'Tuyến đang bị chia cắt rồi. Tớ đề nghị bỏ cấm vài đoạn trước.';
   }
-  if (text.includes('phút')) {
-    return 'Mình sẽ canh thời gian, bạn cứ xem các điểm dừng thú vị.';
+  if (value.includes('phut') || value.includes('phút')) {
+    return 'Tớ canh thời gian. Bạn kia mà đòi dừng quá lâu là tớ nhắc ngay.';
   }
-  if (text.includes('điểm đến') || text.includes('điểm đi')) {
-    return 'Chọn xong hai điểm là tụi mình sẽ lên lịch dừng chân ngay.';
+  if (value.includes('diem den') || value.includes('điểm đến') || value.includes('diem di') || value.includes('điểm đi')) {
+    return 'Chọn xong hai điểm là tớ sẽ so tuyến với bạn tóc trắng.';
   }
-  return 'Tớ sẽ phụ trách nhắc các điểm nên xuống chơi!';
+  return 'Tớ sẽ phản biện nếu tuyến đi quá vòng hoặc đổi tuyến hơi nhiều.';
 }
 
 function cycleGuideTip() {
@@ -883,15 +1152,56 @@ function resetGuideTips() {
   setGuideTip(currentGuideTips[0]);
 }
 
+function isFoodSuggestion(item) {
+  return ['Food', 'Night market', 'Local market'].includes(item.kind);
+}
+
+function isCheckinSuggestion(item) {
+  return ['View', 'Photo', 'Culture', 'Heritage', 'Landmark', 'Nature', 'Theme park', 'Art', 'Shopping'].includes(item.kind);
+}
+
+function buildGuideDuelTips(result, suggestions) {
+  const tips = [
+    {
+      left: `${result.modeShortLabel}: tớ thấy tuyến này có ${suggestions.length} điểm dừng chân, đi khoảng ${formatMinutes(result.cost)}.`,
+      right: result.transfers > 1
+        ? `Nhưng có ${result.transfers} lần đổi tuyến. Tớ hơi không vui đâu, nhớ đọc lịch trình kỹ nhé.`
+        : `Ít đổi tuyến đấy. Đi như vậy khá gọn, tớ tạm chấp nhận.`,
+      leftMood: suggestions.length ? 'excited' : 'idea',
+      rightMood: result.transfers > 1 ? 'pout' : 'proud'
+    }
+  ];
+
+  suggestions.slice(0, 5).forEach((item, index) => {
+    const food = isFoodSuggestion(item);
+    const checkin = isCheckinSuggestion(item);
+    const leftWins = food || (!checkin && index % 2 === 0);
+
+    tips.push({
+      left: leftWins
+        ? `${item.stationName}: tớ vote xuống thử ${item.title}. ${item.walk}.`
+        : `${item.stationName} cũng được, nhưng tớ vẫn muốn dành thời gian cho đồ ăn hơn.`,
+      right: leftWins
+        ? `Khoan, đừng ham quá. ${item.tip}`
+        : `${item.stationName}: ${item.title} hợp check-in hơn. ${item.tip}`,
+      leftMood: food ? 'excited' : leftWins ? 'happy' : 'pout',
+      rightMood: leftWins ? 'pout' : 'excited'
+    });
+  });
+
+  tips.push({
+    left: 'Nếu bạn muốn vui hơn thì chọn Ăn uống, tớ sẽ có lý do đòi xuống tàu nhiều hơn.',
+    right: 'Nếu muốn gọn hơn thì chọn Nhanh nhất hoặc Ít đổi tuyến. Tớ sẽ thắng cuộc tranh luận này.',
+    leftMood: 'proud',
+    rightMood: 'angry'
+  });
+
+  return tips;
+}
+
 function updateGuideTipsForRoute(result) {
   const suggestions = getRouteSuggestions(result.route);
-  const routeTips = suggestions.map(item => `${item.stationName}: thử ${item.title}. ${item.walk}.`);
-
-  currentGuideTips = [
-    `Tuyến này mất khoảng ${formatMinutes(result.cost)}. Mình đã đánh dấu vài điểm đáng xuống chơi.`,
-    ...routeTips,
-    'Bạn có thể bấm vào mình để xem lần lượt các gợi ý dọc tuyến.'
-  ];
+  currentGuideTips = buildGuideDuelTips(result, suggestions);
 
   guideTipIndex = 0;
   setGuideTip(currentGuideTips[0]);
@@ -915,8 +1225,18 @@ function updateBlockUI() {
   );
   setGuideTip(
     count > 0
-      ? 'Đã có đoạn bị cấm rồi. Nhấn Xác nhận để mình dẫn bạn sang bước chọn điểm đi/đến.'
-      : 'Click vào đoạn metro nếu muốn giả lập sự cố, hoặc nhấn Xác nhận để tìm đường ngay.'
+      ? {
+          left: `Đã khóa ${count} đoạn rồi. Tớ hơi căng, nhưng vẫn sẽ tìm tuyến khác nếu mạng còn nối được.`,
+          right: 'Tớ sẽ ưu tiên tuyến gọn hơn sau khi bạn bấm Xác nhận. Đừng khóa quá tay nhé.',
+          leftMood: 'angry',
+          rightMood: 'pout'
+        }
+      : {
+          left: 'Bấm vào đoạn metro nếu muốn giả lập sự cố. Tớ sẽ xem có điểm dừng nào vui không.',
+          right: 'Nếu không muốn thử sự cố thì bấm Xác nhận. Tớ muốn tính tuyến sạch sẽ hơn.',
+          leftMood: 'happy',
+          rightMood: 'idea'
+        }
   );
 
   renderBlockedList();
@@ -1004,12 +1324,82 @@ function getRouteSuggestions(route) {
   return suggestions;
 }
 
+function routeSignature(result) {
+  return result.route.join('>');
+}
+
+function buildRouteOptions(src, dst) {
+  const seenModes = new Set();
+  const candidateModes = [activeRouteMode, ...routeModeOrder].filter(modeKey => {
+    if (seenModes.has(modeKey)) return false;
+    seenModes.add(modeKey);
+    return true;
+  });
+  const bySignature = new Map();
+
+  candidateModes.forEach(modeKey => {
+    const result = findPath(src, dst, { modeKey });
+    if (!result) return;
+
+    const signature = routeSignature(result);
+    if (!bySignature.has(signature)) {
+      bySignature.set(signature, { ...result, matchedModes: [getRouteMode(modeKey).shortLabel] });
+      return;
+    }
+
+    const current = bySignature.get(signature);
+    current.matchedModes.push(getRouteMode(modeKey).shortLabel);
+    if (modeKey === activeRouteMode) {
+      bySignature.set(signature, { ...result, matchedModes: current.matchedModes });
+    }
+  });
+
+  return [...bySignature.values()]
+    .sort((a, b) => {
+      if (a.modeKey === activeRouteMode) return -1;
+      if (b.modeKey === activeRouteMode) return 1;
+      return a.score - b.score;
+    })
+    .slice(0, 4);
+}
+
+function setTourMode(modeKey) {
+  if (!routeModes[modeKey]) return;
+  activeRouteMode = modeKey;
+  renderTourModeButtons();
+
+  if (mode === 'done' && markerStart && markerEnd) {
+    updateRoute();
+    return;
+  }
+
+  const profile = getRouteMode(activeRouteMode);
+  setGuideTip({
+    left: `Đã đổi sang ${profile.shortLabel}. Tớ sẽ tìm điểm dừng chân hợp gu hơn.`,
+    right: `${profile.description} Tớ sẽ kiểm tra xem tuyến có đi quá vòng không.`,
+    leftMood: ['food', 'checkin'].includes(activeRouteMode) ? 'excited' : 'idea',
+    rightMood: activeRouteMode === 'lowTransfers' || activeRouteMode === 'fastest' ? 'proud' : 'pout'
+  });
+}
+
+function renderTourModeButtons() {
+  document.querySelectorAll('[data-tour-mode]').forEach(button => {
+    const selected = button.dataset.tourMode === activeRouteMode;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+  });
+
+  const note = document.getElementById('active-mode-note');
+  if (note) note.textContent = getRouteMode(activeRouteMode).label;
+}
+
 function updateRoute() {
   if (!markerStart || !markerEnd) return;
 
   const sourceId = nearest(markerStart.getLatLng());
   const targetId = nearest(markerEnd.getLatLng());
-  const result = findPath(sourceId, targetId);
+  const routeOptions = buildRouteOptions(sourceId, targetId);
+  const result = routeOptions.find(option => option.modeKey === activeRouteMode) || routeOptions[0];
   clearRouteLayers();
 
   const section = document.getElementById('route-section');
@@ -1019,7 +1409,12 @@ function updateRoute() {
   if (!result) {
     setStatus('Không tìm được đường đi với các đoạn đang bị cấm', 'danger');
     body.innerHTML = '<div class="no-route">Không còn tuyến hợp lệ giữa hai điểm đã chọn.</div>';
-    setGuideTip('Tuyến này đang bị chia cắt. Hãy bỏ cấm một vài đoạn hoặc chọn cặp ga khác nhé.');
+    setGuideTip({
+      left: 'Không ổn rồi, tuyến bị chia cắt. Tớ tức vì không dẫn bạn đi ăn được.',
+      right: 'Bình tĩnh. Bỏ cấm vài đoạn hoặc chọn cặp ga gần hơn là tớ tính lại ngay.',
+      leftMood: 'angry',
+      rightMood: 'pout'
+    });
     return;
   }
 
@@ -1038,11 +1433,121 @@ function updateRoute() {
     routeEdgeLines.push(line);
   });
 
-  body.innerHTML = renderRoute(result) + renderStopSuggestions(result);
+  body.innerHTML = renderRouteOptions(routeOptions, result.modeKey)
+    + renderRoute(result)
+    + renderJourneyTimeline(result)
+    + renderStopSuggestions(result);
   updateGuideTipsForRoute(result);
   const source = stationById.get(sourceId);
   const target = stationById.get(targetId);
-  setStatus(`Đã tính tuyến ${source.name} → ${target.name}`, 'success');
+  setStatus(`Đã tính tuyến ${source.name} → ${target.name} theo ${result.modeShortLabel}`, 'success');
+}
+
+function renderRouteOptions(options, selectedModeKey) {
+  if (!options.length) return '';
+
+  let html = `
+    <div class="route-options">
+      <div class="route-options-head">
+        <span class="section-label">Phương án gợi ý</span>
+        <span>${options.length} tuyến</span>
+      </div>
+      <div class="route-option-list">`;
+
+  options.forEach(option => {
+    const isActive = option.modeKey === selectedModeKey;
+    const modeText = option.matchedModes?.length ? option.matchedModes.join(' / ') : option.modeShortLabel;
+    html += `
+        <button class="route-option-card ${isActive ? 'active' : ''}" type="button" onclick="setTourMode('${option.modeKey}')">
+          <span class="option-tag">${option.modeTag}</span>
+          <strong>${option.modeShortLabel}</strong>
+          <span>${formatMinutes(option.cost)} · ${option.transfers} lần đổi tuyến · ${option.suggestionCount} điểm dừng</span>
+          <small>${modeText}</small>
+        </button>`;
+  });
+
+  html += `
+      </div>
+    </div>`;
+
+  return html;
+}
+
+function buildLineSegments(result) {
+  const segments = [];
+
+  result.legs.forEach(leg => {
+    const last = segments[segments.length - 1];
+    const canMerge = last
+      && !leg.isTransfer
+      && !last.isTransfer
+      && last.line === leg.line
+      && leg.transferTime === 0;
+
+    if (canMerge) {
+      last.to = leg.to;
+      last.stops += 1;
+      last.minutes = roundedMinutes(last.minutes + leg.edgeTime);
+      return;
+    }
+
+    segments.push({
+      line: leg.line,
+      from: leg.from,
+      to: leg.to,
+      stops: leg.isTransfer ? 0 : 1,
+      minutes: roundedMinutes(leg.edgeTime + leg.transferTime),
+      transferTime: leg.transferTime,
+      isTransfer: leg.isTransfer
+    });
+  });
+
+  return segments;
+}
+
+function renderJourneyTimeline(result) {
+  const segments = buildLineSegments(result);
+  if (!segments.length) return '';
+
+  let html = `
+    <div class="journey-timeline">
+      <div class="timeline-head">
+        <span class="section-label">Lịch trình hành trình</span>
+        <span>${segments.length} chặng</span>
+      </div>
+      <div class="timeline-list">`;
+
+  segments.forEach((segment, index) => {
+    const from = stationById.get(segment.from);
+    const to = stationById.get(segment.to);
+    const lineText = segment.line === 'XFER' ? 'Đi bộ' : segment.line;
+    const transferText = segment.transferTime > 0
+      ? `<span class="timeline-transfer">+ ${formatMinutes(segment.transferTime)} đổi tuyến</span>`
+      : '';
+
+    html += `
+        <div class="timeline-segment" style="--line-color:${lineColor(segment.line)}">
+          <div class="timeline-index">${index + 1}</div>
+          <div class="timeline-main">
+            <div class="timeline-line">
+              <span class="line-chip">${lineText}</span>
+              <span>${lineLabel(segment.line)}</span>
+            </div>
+            <div class="timeline-stations">${from.name} → ${to.name}</div>
+            <div class="timeline-meta">
+              <span>${segment.stops || 1} điểm dừng</span>
+              <span>${formatMinutes(segment.minutes)}</span>
+              ${transferText}
+            </div>
+          </div>
+        </div>`;
+  });
+
+  html += `
+      </div>
+    </div>`;
+
+  return html;
 }
 
 function renderRoute(result) {
@@ -1065,7 +1570,7 @@ function renderRoute(result) {
       const leg = result.legs[idx];
       const transferText = leg.transferTime > 0 ? ` + ${formatMinutes(leg.transferTime)} đổi tuyến` : '';
       html += `<div class="route-leg" style="--line-color:${lineColor(leg.line)}">
-        <span class="line-chip">${leg.line === 'XFER' ? 'Walk' : leg.line}</span>
+        <span class="line-chip">${leg.line === 'XFER' ? 'Đi bộ' : leg.line}</span>
         <span>${formatMinutes(leg.edgeTime)}${transferText}</span>
       </div>`;
     }
@@ -1074,7 +1579,8 @@ function renderRoute(result) {
   html += `</div>
   <div class="route-summary">
     <span class="time-chip">⏱ ${formatMinutes(result.cost)}</span>
-    <span class="stop-count-chip">${result.route.length} ga · ${result.legs.filter(leg => !leg.isTransfer).length} đoạn metro</span>
+    <span class="profile-chip">${result.modeShortLabel}</span>
+    <span class="stop-count-chip">${result.route.length} ga · ${result.legs.filter(leg => !leg.isTransfer).length} đoạn metro · ${result.transfers} lần đổi tuyến</span>
   </div>`;
 
   return html;
@@ -1106,8 +1612,8 @@ function renderStopSuggestions(result) {
     html += `
       <div class="idea-card">
         <div class="idea-card-top">
-          <span class="idea-kind">${item.kind}</span>
-          <span class="idea-station">${item.stationName} · stop ${item.stopIndex}</span>
+          <span class="idea-kind">${kindLabel(item.kind)}</span>
+          <span class="idea-station">${item.stationName} · điểm ${item.stopIndex}</span>
         </div>
         <div class="idea-title">${item.title}</div>
         <div class="idea-note">${item.note}</div>
@@ -1146,7 +1652,12 @@ map.on('click', event => {
     markerStart = L.marker(event.latlng, markerOpts('▶ Bắt đầu', '#36c95a')).addTo(map);
     mode = 'end';
     setStatus('Chọn điểm kết thúc trên bản đồ');
-    setGuideTip('Tốt rồi. Giờ chọn điểm đến, mình sẽ tính tuyến và chọn vài điểm dừng thú vị cho bạn.');
+    setGuideTip({
+      left: 'Tốt, đã có điểm đi. Giờ chọn điểm đến, tớ sẽ săn điểm ăn chơi dọc tuyến.',
+      right: 'Tớ sẽ đối chiếu với thời gian và số lần đổi tuyến. Chọn điểm đến đi.',
+      leftMood: 'excited',
+      rightMood: 'proud'
+    });
     return;
   }
 
@@ -1163,7 +1674,12 @@ function finishBlock() {
   document.getElementById('route-section').style.display = 'none';
   clearRouteLayers();
   setStatus('Chọn điểm bắt đầu trên bản đồ');
-  setGuideTip('Chọn điểm bắt đầu trên bản đồ. Mình sẽ tự gán vị trí đó với ga MTR gần nhất.');
+  setGuideTip({
+    left: 'Chọn điểm bắt đầu trên bản đồ đi. Tớ sẽ gán vào ga MTR gần nhất.',
+    right: 'Sau đó chọn điểm đến. Tớ sẽ so tuyến với bạn tóc trắng.',
+    leftMood: 'happy',
+    rightMood: 'idea'
+  });
 }
 
 function resetMap() {
@@ -1200,4 +1716,5 @@ function applyZoom() {
   panel.style.transformOrigin = 'top right';
 }
 
+renderTourModeButtons();
 updateBlockUI();

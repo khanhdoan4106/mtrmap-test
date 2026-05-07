@@ -25,7 +25,7 @@
 </div>
 
 <div id="line-legend" aria-label="MTR line legend">
-  <div class="legend-title">Live Network</div>
+  <div class="legend-title">Mạng MTR</div>
   <div class="legend-grid">
     <span><i style="--line:#e2231a"></i>TWL</span>
     <span><i style="--line:#007dc5"></i>ISL</span>
@@ -36,11 +36,18 @@
   </div>
 </div>
 
-<button id="tour-guide" type="button" onclick="cycleGuideTip()" aria-label="Anime travel guide">
+<button id="tour-guide" type="button" onclick="cycleGuideTip()" aria-label="Hướng dẫn viên anime">
   <div class="guide-bubble">
     <span id="guide-text">Xin chào, mình sẽ gợi ý điểm chơi và món ngon dọc tuyến metro.</span>
   </div>
+  <div id="guide-mood-left" class="mood-badge mood-happy" aria-hidden="true">
+    <span class="mood-icon">:D</span>
+    <span class="mood-label">Vui</span>
+  </div>
   <div class="guide-stage">
+    <div class="emotion-fx left-fx" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
     <svg class="anime-guide chibi-hood-guide" viewBox="0 0 170 210" role="img" aria-label="Chibi anime travel guide mascot">
       <defs>
         <linearGradient id="hoodShade" x1="0" x2="1" y1="0" y2="1">
@@ -72,6 +79,17 @@
           <path class="eye-smile right" d="M90 73 C95 66 104 66 108 73"/>
           <ellipse class="mouth-open" cx="83" cy="89" rx="9" ry="12"/>
           <path class="tongue" d="M77 95 C82 100 88 100 92 95 C89 102 80 103 77 95 Z"/>
+          <g class="face-expression left-expression">
+            <path class="expr-eye expr-angry left" d="M56 68 L76 76"/>
+            <path class="expr-eye expr-angry right" d="M110 68 L91 76"/>
+            <path class="expr-mouth expr-angry" d="M73 94 C79 88 90 88 96 94"/>
+            <path class="expr-eye expr-pout left" d="M57 75 L75 75"/>
+            <path class="expr-eye expr-pout right" d="M91 75 L109 75"/>
+            <ellipse class="expr-mouth expr-pout" cx="83" cy="92" rx="8" ry="3"/>
+            <path class="expr-eye expr-proud left" d="M58 72 C64 70 71 70 77 72"/>
+            <path class="expr-eye expr-proud right" d="M90 72 C96 70 103 70 109 72"/>
+            <path class="expr-mouth expr-proud" d="M72 89 C79 96 91 96 98 89"/>
+          </g>
           <circle class="blush left" cx="51" cy="85" r="10"/>
           <circle class="blush right" cx="114" cy="85" r="10"/>
           <path class="hair side left" d="M42 75 C30 103 32 144 50 174 C51 134 56 104 68 77 Z"/>
@@ -100,11 +118,18 @@
   </div>
 </button>
 
-<button id="tour-guide-right" class="side-guide" type="button" onclick="cycleGuideTip()" aria-label="Second anime travel guide">
+<button id="tour-guide-right" class="side-guide" type="button" onclick="cycleGuideTip()" aria-label="Hướng dẫn viên anime thứ hai">
   <div class="guide-bubble right-bubble">
     <span id="guide-text-right">Tớ sẽ phụ trách nhắc các điểm nên xuống chơi!</span>
   </div>
+  <div id="guide-mood-right" class="mood-badge mood-idea" aria-hidden="true">
+    <span class="mood-icon">!!</span>
+    <span class="mood-label">Ý kiến</span>
+  </div>
   <div class="guide-stage">
+    <div class="emotion-fx right-fx" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
     <svg class="anime-guide purple-guide" viewBox="0 0 160 230" role="img" aria-label="Purple hair anime travel guide mascot">
       <defs>
         <linearGradient id="purpleCoatShade" x1="0" x2="1" y1="0" y2="1">
@@ -139,6 +164,17 @@
           <ellipse class="eye right" cx="94" cy="68" rx="5.2" ry="7.5"/>
         </g>
         <path class="smile" d="M72 84 C77 89 85 89 90 84"/>
+        <g class="face-expression purple-expression">
+          <path class="expr-brow expr-angry left" d="M58 58 L73 63"/>
+          <path class="expr-brow expr-angry right" d="M102 58 L87 63"/>
+          <path class="expr-mouth expr-angry" d="M72 88 C78 83 87 83 93 88"/>
+          <path class="expr-eye expr-pout left" d="M60 68 L73 68"/>
+          <path class="expr-eye expr-pout right" d="M87 68 L100 68"/>
+          <ellipse class="expr-mouth expr-pout" cx="82" cy="87" rx="7" ry="2.8"/>
+          <path class="expr-eye expr-excited left" d="M59 68 L66 61 L73 68 L66 75 Z"/>
+          <path class="expr-eye expr-excited right" d="M87 68 L94 61 L101 68 L94 75 Z"/>
+          <path class="expr-mouth expr-excited" d="M71 84 C76 94 89 94 94 84"/>
+        </g>
         <circle class="blush left" cx="56" cy="80" r="5"/>
         <circle class="blush right" cx="104" cy="80" r="5"/>
         <path class="hair side left" d="M44 77 C38 102 47 121 59 134 C54 111 58 91 68 75 Z"/>
@@ -171,6 +207,36 @@
     <div id="status-badge">
       <span class="dot"></span>
       <span id="status-text">Đang tải mạng metro Hong Kong</span>
+    </div>
+
+    <!-- TOUR MODE -->
+    <div class="tour-mode-card">
+      <div class="mode-card-head">
+        <span class="section-label">Chế độ du lịch</span>
+        <span id="active-mode-note">Cân bằng</span>
+      </div>
+      <div class="tour-mode-grid" aria-label="Chế độ ưu tiên tuyến đường">
+        <button class="mode-pill active" type="button" data-tour-mode="balanced" onclick="setTourMode('balanced')">
+          <span>Cân bằng</span>
+          <small>thời gian + điểm chơi</small>
+        </button>
+        <button class="mode-pill" type="button" data-tour-mode="fastest" onclick="setTourMode('fastest')">
+          <span>Nhanh nhất</span>
+          <small>ưu tiên thời gian</small>
+        </button>
+        <button class="mode-pill" type="button" data-tour-mode="lowTransfers" onclick="setTourMode('lowTransfers')">
+          <span>Ít đổi tuyến</span>
+          <small>hạn chế chuyển tuyến</small>
+        </button>
+        <button class="mode-pill" type="button" data-tour-mode="food" onclick="setTourMode('food')">
+          <span>Ăn uống</span>
+          <small>món ngon dọc tuyến</small>
+        </button>
+        <button class="mode-pill" type="button" data-tour-mode="checkin" onclick="setTourMode('checkin')">
+          <span>Check-in</span>
+          <small>điểm chụp ảnh</small>
+        </button>
+      </div>
     </div>
 
     <!-- BLOCKED SECTION -->
