@@ -1693,6 +1693,7 @@ function resetMap() {
   mode = 'block';
   scale = 1;
   document.getElementById('panel').style.transform = '';
+  document.getElementById('panel').style.maxHeight = '';
   document.getElementById('route-section').style.display = 'none';
   document.getElementById('blocked-count-chip').style.display = 'none';
 
@@ -1714,6 +1715,8 @@ function applyZoom() {
   const panel = document.getElementById('panel');
   panel.style.transform = `scale(${scale})`;
   panel.style.transformOrigin = 'top right';
+  // Bù lại: khi scale > 1, thu max-height để ctrl-row không bị đẩy ra ngoài viewport
+  panel.style.maxHeight = `calc((100vh - 32px) / ${scale})`;
 }
 
 renderTourModeButtons();
