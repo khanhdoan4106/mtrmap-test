@@ -3,6 +3,27 @@
 // =====================================================================
 const map = L.map('map', { zoomControl: false }).setView([22.34, 114.15], 11);
 
+let hkGeoJSON = null;
+
+async function loadHKBoundary() {
+  // Chặn tương tác bản đồ trong lúc chờ
+  setStatus('Đang tải dữ liệu biên giới Hong Kong...', '');
+  map.off('click'); // tắt sự kiện click bản đồ tạm thời
+
+  try {
+    const res = await fetch('./hongkong.geojson');
+    hkGeoJSON = await res.json();
+    console.log('Hong Kong boundary loaded');
+  } catch (err) {
+    console.warn('Không load được boundary HK:', err);
+    hkGeoJSON = null;
+  } finally {
+    // Bật lại click sau khi load xong (dù thành công hay lỗi)
+    registerMapClick();
+    updateBlockUI(); // reset status về trạng thái bình thường
+  }
+}
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '© OpenStreetMap'
@@ -152,7 +173,7 @@ const stations = [
   { id: 'POA', name: 'Po Lam', lat: 22.3224, lng: 114.258, lines: ['TKL'] },
   { id: 'NAC', name: 'Nam Cheong', lat: 22.326497, lng: 114.153089, lines: ['TCL', 'TML'] },
   { id: 'SUN', name: 'Sunny Bay', lat: 22.3318, lng: 114.0288, lines: ['DRL', 'TCL'] },
-  { id: 'DIS', name: 'Disneyland Resort', lat: 22.3155, lng: 114.0451, lines: ['DRL'] },
+  { id: 'DIS', name: 'Disneyland Resort', lat: 22.3172, lng: 114.0442, lines: ['DRL'] },
   { id: 'AWE', name: 'AsiaWorld-Expo', lat: 22.3218, lng: 113.9412, lines: ['AEL'] },
   { id: 'LHP', name: 'LOHAS Park', lat: 22.2957, lng: 114.2689, lines: ['TKL'] },
   { id: 'HUH', name: 'Hung Hom', lat: 22.3029, lng: 114.1816, lines: ['EAL', 'TML'] },
@@ -763,7 +784,54 @@ function buildAdjacency(edgeList) {
   return graph;
 }
 
+// Thêm bounding_box bao phủ lãnh thổ HongKong
+const HK_BOUNDS = {
+  minLat: 22.15, maxLat: 22.58,
+  minLng: 113.82, maxLng: 114.44
+};
+
+function isInHongKong(latlng) {
+  // Chưa load xong GeoJSON → cho qua, không chặn
+  if (!hkGeoJSON) return true;
+
+  const point = [latlng.lng, latlng.lat]; // GeoJSON dùng [lng, lat]
+
+  const geometries = [];
+  hkGeoJSON.features
+    ? hkGeoJSON.features.forEach(f => geometries.push(f.geometry))
+    : geometries.push(hkGeoJSON.geometry);
+
+  return geometries.some(geom => {
+    if (!geom) return false;
+    if (geom.type === 'Polygon') {
+      return polygonContains(geom.coordinates[0], point);
+    }
+    if (geom.type === 'MultiPolygon') {
+      return geom.coordinates.some(poly => polygonContains(poly[0], point));
+    }
+    return false;
+  });
+}
+
+// Ray casting algorithm
+function polygonContains(ring, point) {
+  const [x, y] = point;
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xj)) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
 function nearest(latlng) {
+
+  // Điểm nằm ngoài HongKong -> null
+  if (!isInHongKong(latlng)) return null;
+
   let best = stations[0].id;
   let min = Infinity;
 
@@ -1398,13 +1466,30 @@ function updateRoute() {
 
   const sourceId = nearest(markerStart.getLatLng());
   const targetId = nearest(markerEnd.getLatLng());
-  const routeOptions = buildRouteOptions(sourceId, targetId);
-  const result = routeOptions.find(option => option.modeKey === activeRouteMode) || routeOptions[0];
-  clearRouteLayers();
 
+  clearRouteLayers();
   const section = document.getElementById('route-section');
   const body = document.getElementById('route-body');
   section.style.display = 'block';
+
+  // Một trong hai điểm nằm ngoài Hong Kong
+  if (!sourceId || !targetId) {
+    const which = !sourceId && !targetId
+      ? 'Cả hai điểm'
+      : !sourceId ? 'Điểm xuất phát' : 'Điểm đến';
+    setStatus(which + ' nằm ngoài phạm vi mạng MTR Hong Kong', 'danger');
+    body.innerHTML = '<div class="no-route">Điểm bắt đầu hoặc điểm kết thúc nằm ngoài lãnh thổ Hong Kong. Vui lòng chọn lại trong phạm vi mạng MTR.</div>';
+    setGuideTip({
+      left: 'Ủa bạn đi đâu vậy? Chỗ đó tớ không phủ sóng được rồi!',
+      right: 'MTR chỉ chạy trong Hong Kong thôi nha. Bấm lại vào đúng vị trí trong bản đồ nhé.',
+      leftMood: 'angry',
+      rightMood: 'pout'
+    });
+    return;
+  }
+
+  const routeOptions = buildRouteOptions(sourceId, targetId);
+  const result = routeOptions.find(option => option.modeKey === activeRouteMode) || routeOptions[0];
 
   if (!result) {
     setStatus('Không tìm được đường đi với các đoạn đang bị cấm', 'danger');
@@ -1644,30 +1729,32 @@ const markerOpts = (label, color) => ({
   })
 });
 
-map.on('click', event => {
-  if (mode === 'block') return;
+function registerMapClick() {
+  map.on('click', event => {
+    if (mode === 'block') return;
 
-  if (mode === 'start') {
-    if (markerStart) map.removeLayer(markerStart);
-    markerStart = L.marker(event.latlng, markerOpts('▶ Bắt đầu', '#36c95a')).addTo(map);
-    mode = 'end';
-    setStatus('Chọn điểm kết thúc trên bản đồ');
-    setGuideTip({
-      left: 'Tốt, đã có điểm đi. Giờ chọn điểm đến, tớ sẽ săn điểm ăn chơi dọc tuyến.',
-      right: 'Tớ sẽ đối chiếu với thời gian và số lần đổi tuyến. Chọn điểm đến đi.',
-      leftMood: 'excited',
-      rightMood: 'proud'
-    });
-    return;
-  }
+    if (mode === 'start') {
+      if (markerStart) map.removeLayer(markerStart);
+      markerStart = L.marker(event.latlng, markerOpts('▶ Bắt đầu', '#36c95a')).addTo(map);
+      mode = 'end';
+      setStatus('Chọn điểm kết thúc trên bản đồ');
+      setGuideTip({
+        left: 'Tốt, đã có điểm đi. Giờ chọn điểm đến, tớ sẽ săn điểm ăn chơi dọc tuyến.',
+        right: 'Tớ sẽ đối chiếu với thời gian và số lần đổi tuyến. Chọn điểm đến đi.',
+        leftMood: 'excited',
+        rightMood: 'proud'
+      });
+      return;
+    }
 
-  if (mode === 'end') {
-    if (markerEnd) map.removeLayer(markerEnd);
-    markerEnd = L.marker(event.latlng, markerOpts('■ Kết thúc', '#ff5252')).addTo(map);
-    mode = 'done';
-    updateRoute();
-  }
-});
+    if (mode === 'end') {
+      if (markerEnd) map.removeLayer(markerEnd);
+      markerEnd = L.marker(event.latlng, markerOpts('■ Kết thúc', '#ff5252')).addTo(map);
+      mode = 'done';
+      updateRoute();
+    }
+  });
+}
 
 function finishBlock() {
   mode = 'start';
@@ -1721,3 +1808,4 @@ function applyZoom() {
 
 renderTourModeButtons();
 updateBlockUI();
+loadHKBoundary();
