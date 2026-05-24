@@ -77,53 +77,54 @@ body {
 .corner.bottom-right { bottom:-1px; right:-1px; border-width:0 3px 3px 0; }
 
 #line-legend {
-  position:absolute;
-  left:18px;
-  top:18px;
-  z-index:920;
-  width:220px;
-  background:rgba(255,255,255,0.93);
-  border:1px solid rgba(214,221,229,0.92);
-  border-radius:12px;
-  box-shadow:0 10px 28px rgba(16,24,40,0.16);
-  backdrop-filter:blur(12px);
-  padding:11px 12px;
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  z-index: 920;
+  width: max-content; 
+  background: rgba(255, 255, 255, 0.93);
+  border: 1px solid rgba(214, 221, 229, 0.92);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(16, 24, 40, 0.16);
+  backdrop-filter: blur(12px);
+  padding: 10px 12px; 
 }
 
 .legend-title {
-  color:var(--text);
-  font-size:11px;
-  font-family:var(--mono);
-  font-weight:700;
-  text-transform:uppercase;
-  margin-bottom:8px;
+  color: var(--text);
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+  padding-bottom: 4px;
 }
 
 .legend-grid {
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:7px 8px;
+  display: flex;
+  flex-direction: column; 
+  gap: 8px;
 }
 
 .legend-grid span {
-  display:flex;
-  align-items:center;
-  gap:5px;
-  color:var(--muted);
-  font-family:var(--mono);
-  font-size:11px;
-  font-weight:700;
+  display: flex;
+  align-items: center;
+  gap: 6px; 
+  color: var(--muted);
+  font-family: var(--font); 
+  font-size: 11.5px; 
 }
 
 .legend-grid i {
-  width:16px;
-  height:4px;
-  display:inline-block;
-  border-radius:999px;
-  background:var(--line);
-  box-shadow:0 0 0 1px rgba(255,255,255,0.7);
+  width: 14px;
+  height: 6px; 
+  display: inline-block;
+  border-radius: 999px;
+  background: var(--line);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7);
+  flex-shrink: 0; 
 }
-
 #tour-guide {
   position:absolute;
   left:22px;
@@ -1588,4 +1589,41 @@ body {
   .dot {
     animation:none;
   }
+}
+
+.leaflet-control-layers {
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 28px rgba(16,24,40,0.16) !important;
+  font-family: var(--font) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px);
+  padding: 4px;
+}
+
+.leaflet-control-layers-list label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+#map.has-active-route path.base-edge {
+  opacity: 0.15 !important;
+  filter: grayscale(80%);
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+#map.has-active-route .station-dot {
+  opacity: 0.3;
+  box-shadow: none;
+  transition: opacity 0.5s ease;
+}
+
+.active-route-core {
+  animation: routeFlow 0.8s linear infinite forwards;
+}
+
+@keyframes routeFlow {
+  100% { stroke-dashoffset: -27; } 
 }

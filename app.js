@@ -1,7 +1,18 @@
 // =====================================================================
 // MAP SETUP
 // =====================================================================
-const map = L.map('map', { zoomControl: false }).setView([22.34, 114.15], 11);
+const hkMaxBounds = L.latLngBounds(
+  [22.15, 113.82], 
+  [22.58, 114.44] 
+);
+
+const map = L.map('map', { 
+  zoomControl: false,
+  maxBounds: hkMaxBounds,     
+  maxBoundsViscosity: 1.3,    
+  minZoom: 10,                
+  maxZoom: 18              
+}).setView([22.34, 114.15], 11);
 
 let hkGeoJSON = null;
 
@@ -24,10 +35,42 @@ async function loadHKBoundary() {
   }
 }
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+// =====================================================================
+// BASEMAP LAYERS
+// =====================================================================
+const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '© OpenStreetMap'
-}).addTo(map);
+});
+
+const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap, © CARTO'
+});
+
+const cartoDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap, © CARTO'
+});
+
+const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 19,
+  attribution: 'Tiles © Esri'
+});
+
+// Chọn lớp cartoLight làm mặc định khi load web (hiển thị tuyến MTR rõ nhất)
+cartoLight.addTo(map);
+
+// Nhóm các lớp lại để đưa vào UI
+const baseMaps = {
+  "Bản đồ Sáng": cartoLight,
+  "Bản đồ Tối": cartoDark,
+  "Tiêu chuẩn (OSM)": osmLayer,
+  "Vệ tinh (Esri)": esriSatellite
+};
+
+// Đặt bộ chọn lớp ở góc dưới bên phải (tránh đè lên Mascot và Legend)
+L.control.layers(baseMaps, null, { position: 'bottomright' }).addTo(map);
 
 // =====================================================================
 // NETWORK CONFIG
@@ -1062,18 +1105,45 @@ function drawEdges() {
     const a = stationById.get(edge.u);
     const b = stationById.get(edge.v);
     const blocked = blockedEdges.has(edge.key);
-    const primaryLine = edge.lines[0];
+    
+    const primaryLine = edge.lines.includes('TKL') ? 'TKL' : edge.lines[0];
     const color = blocked ? '#ff5252' : lineColor(primaryLine);
+
+    const isShared = edge.lines.length > 1 && !edge.isTransfer;
+    const baseWeight = isShared ? 6 : 4;
 
     const line = L.polyline(
       [[a.lat, a.lng], [b.lat, b.lng]],
       {
         color,
-        weight: edge.isTransfer ? 3 : blocked ? 6 : 4,
-        opacity: edge.isTransfer ? 0.58 : blocked ? 1 : 0.76,
-        dashArray: edge.isTransfer ? '4,8' : blocked ? '9,7' : null
+        weight: edge.isTransfer ? 3 : blocked ? 6 : baseWeight,
+        opacity: edge.isTransfer ? 0.58 : blocked ? 1 : 0.8,
+        dashArray: edge.isTransfer ? '4,8' : blocked ? '9,7' : null,
+        className: 'base-edge' 
       }
     ).addTo(map);
+
+    edgeLines.push(line);
+
+    if (isShared && !blocked) {
+ 
+      const secondLine = edge.lines.find(l => l !== primaryLine) || edge.lines[1]; 
+      const secondColor = lineColor(secondLine);
+      
+      const innerLine = L.polyline(
+        [[a.lat, a.lng], [b.lat, b.lng]],
+        {
+          color: secondColor,
+          weight: baseWeight, 
+          opacity: 0.95,
+          dashArray: '10, 10', 
+          interactive: false, 
+          className: 'base-edge' 
+        }
+      ).addTo(map);
+      
+      edgeLines.push(innerLine);
+    }
 
     const timeText = Math.min(...edge.lines.map(code => edge.timeByLine[code]));
     line.bindTooltip(
@@ -1097,12 +1167,10 @@ function drawEdges() {
     });
     line.on('mouseout', () => {
       line.setStyle({
-        weight: edge.isTransfer ? 3 : blockedEdges.has(edge.key) ? 6 : 4,
-        opacity: edge.isTransfer ? 0.58 : blockedEdges.has(edge.key) ? 1 : 0.76
+        weight: edge.isTransfer ? 3 : blockedEdges.has(edge.key) ? 6 : baseWeight,
+        opacity: edge.isTransfer ? 0.58 : blockedEdges.has(edge.key) ? 1 : 0.8
       });
     });
-
-    edgeLines.push(line);
   });
 }
 
@@ -1355,6 +1423,7 @@ function clearRouteLayers() {
   }
   routeEdgeLines.forEach(line => map.removeLayer(line));
   routeEdgeLines = [];
+  document.getElementById('map').classList.remove('has-active-route');
 }
 
 function getRouteSuggestions(route) {
@@ -1503,20 +1572,74 @@ function updateRoute() {
     return;
   }
 
-  result.legs.forEach(leg => {
-    const a = stationById.get(leg.from);
-    const b = stationById.get(leg.to);
-    const line = L.polyline(
-      [[a.lat, a.lng], [b.lat, b.lng]],
-      {
-        color: lineColor(leg.line),
-        weight: leg.isTransfer ? 5 : 7,
-        opacity: 0.95,
-        dashArray: leg.isTransfer ? '5,7' : null
-      }
-    ).addTo(map);
-    routeEdgeLines.push(line);
-  });
+document.getElementById('map').classList.add('has-active-route'); 
+
+// =====================================================================
+  // VẼ ĐƯỜNG ĐI BỘ TỪ ĐIỂM CLICK ĐẾN GA 
+  // =====================================================================
+  const startStn = stationById.get(sourceId);
+  const endStn = stationById.get(targetId);
+
+  const calcWalkMins = (latlng, station) => {
+    const dist = haversine({ lat: latlng.lat, lng: latlng.lng }, station);
+    return Math.max(1, Math.ceil((dist / 1000 / 5) * 60));
+  };
+
+  const walkStart = L.polyline(
+    [markerStart.getLatLng(), [startStn.lat, startStn.lng]],
+    {
+      color: '#8da2b5', 
+      weight: 5,
+      dashArray: '6, 8',
+      lineCap: 'round',
+      opacity: 0.9,
+      className: 'walk-path'
+    }
+  ).addTo(map);
+  
+  walkStart.bindTooltip(
+    `🚶 Đi bộ tới ga ${startStn.name} · ~${calcWalkMins(markerStart.getLatLng(), startStn)} phút`, 
+    { sticky: true }
+  );
+  routeEdgeLines.push(walkStart);
+
+  const walkEnd = L.polyline(
+    [[endStn.lat, endStn.lng], markerEnd.getLatLng()],
+    {
+      color: '#8da2b5',
+      weight: 5,
+      dashArray: '6, 8',
+      lineCap: 'round',
+      opacity: 0.9,
+      className: 'walk-path'
+    }
+  ).addTo(map);
+
+  walkEnd.bindTooltip(
+    `🚶 Đi bộ từ ga ${endStn.name} · ~${calcWalkMins(markerEnd.getLatLng(), endStn)} phút`, 
+    { sticky: true }
+  );
+  routeEdgeLines.push(walkEnd);
+
+result.legs.forEach(leg => {
+  const a = stationById.get(leg.from);
+  const b = stationById.get(leg.to);
+
+  const line = L.polyline(
+    [[a.lat, a.lng], [b.lat, b.lng]],
+    {
+      color: lineColor(leg.line),
+      weight: leg.isTransfer ? 5 : 7,
+      opacity: 1,
+
+      dashArray: leg.isTransfer ? '5,8' : '15, 12', 
+      lineCap: 'round',
+      lineJoin: 'round',
+      className: leg.isTransfer ? 'active-route-transfer' : 'active-route-core' 
+    }
+  ).addTo(map);
+  routeEdgeLines.push(line);
+});
 
   body.innerHTML = renderRouteOptions(routeOptions, result.modeKey)
     + renderRoute(result)
