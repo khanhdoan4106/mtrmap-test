@@ -24,10 +24,42 @@ async function loadHKBoundary() {
   }
 }
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+// =====================================================================
+// BASEMAP LAYERS
+// =====================================================================
+const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '© OpenStreetMap'
-}).addTo(map);
+});
+
+const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap, © CARTO'
+});
+
+const cartoDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap, © CARTO'
+});
+
+const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 19,
+  attribution: 'Tiles © Esri'
+});
+
+// Chọn lớp cartoLight làm mặc định khi load web (hiển thị tuyến MTR rõ nhất)
+cartoLight.addTo(map);
+
+// Nhóm các lớp lại để đưa vào UI
+const baseMaps = {
+  "Bản đồ Sáng": cartoLight,
+  "Bản đồ Tối": cartoDark,
+  "Tiêu chuẩn (OSM)": osmLayer,
+  "Vệ tinh (Esri)": esriSatellite
+};
+
+// Đặt bộ chọn lớp ở góc dưới bên phải (tránh đè lên Mascot và Legend)
+L.control.layers(baseMaps, null, { position: 'bottomright' }).addTo(map);
 
 // =====================================================================
 // NETWORK CONFIG
