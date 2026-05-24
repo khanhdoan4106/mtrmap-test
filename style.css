@@ -1607,3 +1607,23 @@ body {
   color: var(--text);
   margin-bottom: 4px;
 }
+
+#map.has-active-route path.base-edge {
+  opacity: 0.15 !important;
+  filter: grayscale(80%);
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+#map.has-active-route .station-dot {
+  opacity: 0.3;
+  box-shadow: none;
+  transition: opacity 0.5s ease;
+}
+
+.active-route-core {
+  animation: routeFlow 0.8s linear infinite forwards;
+}
+
+@keyframes routeFlow {
+  100% { stroke-dashoffset: -27; } 
+}
